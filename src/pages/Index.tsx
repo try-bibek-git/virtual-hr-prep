@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -7,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { MessageSquare, FileText, BarChart3, Award, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import useEmblaCarousel from "embla-carousel-react";
 
 const testimonials = [
   {
@@ -57,6 +57,26 @@ const workflowSteps = [
 ];
 
 const Index = () => {
+  // Embla carousel setup with auto-scroll
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    align: "start", 
+    loop: true,
+    dragFree: true
+  });
+
+  // Auto-scroll functionality
+  useEffect(() => {
+    if (emblaApi) {
+      // Start auto-scrolling
+      const intervalId = setInterval(() => {
+        emblaApi.scrollNext();
+      }, 3000); // Scroll every 3 seconds
+      
+      // Clean up interval when component unmounts
+      return () => clearInterval(intervalId);
+    }
+  }, [emblaApi]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -138,35 +158,24 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Companies Carousel */}
+      {/* Companies Carousel - Now Auto-Scrolling */}
       <section className="py-20 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">Used by Top Companies</h2>
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full max-w-5xl mx-auto"
-          >
-            <CarouselContent>
-              {companies.map((company, index) => (
-                <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/4">
-                  <div className="p-2">
-                    <Card className="h-32 flex items-center justify-center border border-gray-200 dark:border-gray-800">
-                      <CardContent className="flex items-center justify-center p-6">
-                        <span className="text-xl font-bold">{company}</span>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
+          <div className="w-full max-w-5xl mx-auto overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {/* Duplicate companies for seamless infinite scroll */}
+              {[...companies, ...companies].map((company, index) => (
+                <div key={index} className="min-w-[250px] flex-shrink-0 px-4">
+                  <Card className="h-32 flex items-center justify-center border border-gray-200 dark:border-gray-800 transition-all hover:shadow-md">
+                    <CardContent className="flex items-center justify-center p-6">
+                      <span className="text-xl font-bold">{company}</span>
+                    </CardContent>
+                  </Card>
+                </div>
               ))}
-            </CarouselContent>
-            <div className="flex justify-center mt-8 gap-2">
-              <CarouselPrevious className="relative static" />
-              <CarouselNext className="relative static" />
             </div>
-          </Carousel>
+          </div>
         </div>
       </section>
 
