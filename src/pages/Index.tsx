@@ -30,7 +30,38 @@ const testimonials = [
 ];
 
 const companies = [
-  "Google", "Amazon", "Microsoft", "Apple", "Meta", "Netflix", "Adobe", "Salesforce"
+  { 
+    name: "Google", 
+    logo: "https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80"
+  },
+  { 
+    name: "Amazon", 
+    logo: "https://images.unsplash.com/photo-1529612700005-e35377bf1415?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80"
+  },
+  { 
+    name: "Microsoft", 
+    logo: "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80" 
+  },
+  { 
+    name: "Apple", 
+    logo: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80" 
+  },
+  { 
+    name: "Meta", 
+    logo: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80" 
+  },
+  { 
+    name: "Netflix", 
+    logo: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80" 
+  },
+  { 
+    name: "Adobe", 
+    logo: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80" 
+  },
+  { 
+    name: "Salesforce", 
+    logo: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=150&q=80" 
+  }
 ];
 
 const workflowSteps = [
@@ -158,7 +189,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Companies Carousel - Now Auto-Scrolling */}
+      {/* Companies Carousel - Now with Logos */}
       <section className="py-20 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">Used by Top Companies</h2>
@@ -168,8 +199,12 @@ const Index = () => {
               {[...companies, ...companies].map((company, index) => (
                 <div key={index} className="min-w-[250px] flex-shrink-0 px-4">
                   <Card className="h-32 flex items-center justify-center border border-gray-200 dark:border-gray-800 transition-all hover:shadow-md">
-                    <CardContent className="flex items-center justify-center p-6">
-                      <span className="text-xl font-bold">{company}</span>
+                    <CardContent className="flex items-center justify-center p-4">
+                      <img 
+                        src={company.logo}
+                        alt={`${company.name} logo`}
+                        className="max-h-20 max-w-full object-contain filter dark:brightness-90"
+                      />
                     </CardContent>
                   </Card>
                 </div>
