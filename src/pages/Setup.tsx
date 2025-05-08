@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -24,8 +23,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
 import { ArrowRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -77,8 +74,6 @@ const Setup = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       <main className="flex-1 container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
@@ -214,8 +209,6 @@ const Setup = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

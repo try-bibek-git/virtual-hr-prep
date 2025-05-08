@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,8 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, Clock } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 // Sample questions based on interview type
 const sampleQuestions = {
@@ -112,8 +109,6 @@ const Interview = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       <main className="flex-1 container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
@@ -176,8 +171,6 @@ const Interview = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

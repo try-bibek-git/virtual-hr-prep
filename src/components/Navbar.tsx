@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, Sun, Moon } from "lucide-react";
@@ -10,12 +9,27 @@ import ThemeToggle from "./ThemeToggle";
 const Navbar = () => {
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const handleScrollToSection = (sectionId: string) => {
+    if (location.pathname !== '/') {
+      // If not on home page, navigate to home page first
+      window.location.href = `/#${sectionId}`;
+    } else {
+      // If on home page, just scroll to section
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    setIsMenuOpen(false);
+  };
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "How It Works", href: "/#how-it-works" },
-    { name: "Testimonials", href: "/#testimonials" },
-    { name: "FAQ", href: "/#faq" },
+    { name: "How It Works", href: "#how-it-works", onClick: () => handleScrollToSection('how-it-works') },
+    { name: "Testimonials", href: "#testimonials", onClick: () => handleScrollToSection('testimonials') },
+    { name: "FAQ", href: "/faq" },
   ];
 
   return (
@@ -31,13 +45,23 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.href}
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              {link.name}
-            </Link>
+            link.onClick ? (
+              <button
+                key={link.name}
+                onClick={link.onClick}
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                {link.name}
+              </button>
+            ) : (
+              <Link
+                key={link.name}
+                to={link.href}
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                {link.name}
+              </Link>
+            )
           ))}
         </nav>
 
@@ -69,14 +93,24 @@ const Navbar = () => {
                   </div>
                   <nav className="flex flex-col gap-4">
                     {navLinks.map((link) => (
-                      <Link
-                        key={link.name}
-                        to={link.href}
-                        className="text-lg font-medium transition-colors hover:text-primary"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {link.name}
-                      </Link>
+                      link.onClick ? (
+                        <button
+                          key={link.name}
+                          onClick={link.onClick}
+                          className="text-lg font-medium transition-colors hover:text-primary text-left"
+                        >
+                          {link.name}
+                        </button>
+                      ) : (
+                        <Link
+                          key={link.name}
+                          to={link.href}
+                          className="text-lg font-medium transition-colors hover:text-primary"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {link.name}
+                        </Link>
+                      )
                     ))}
                   </nav>
                   <Button asChild className="mt-4">

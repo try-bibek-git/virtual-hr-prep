@@ -1,9 +1,8 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { MessageSquare, FileText, BarChart3, Award, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
@@ -120,7 +119,7 @@ const workflowSteps = [
   },
 ];
 
-const Index = () => {
+const Index: React.FC = () => {
   // Embla carousel setup with auto-scroll
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: "start", 
@@ -143,8 +142,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-gray-900 dark:to-gray-800 py-20">
         <div className="container mx-auto px-4 md:px-6">
@@ -174,7 +171,7 @@ const Index = () => {
       </section>
 
       {/* Workflow Steps */}
-      <section className="py-20 bg-white dark:bg-gray-950">
+      <section id="how-it-works" className="py-20 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -196,7 +193,7 @@ const Index = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900">
+      <section id="testimonials" className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-3xl font-bold text-center mb-12">What People Are Saying</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -257,8 +254,6 @@ const Index = () => {
           </Button>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };
