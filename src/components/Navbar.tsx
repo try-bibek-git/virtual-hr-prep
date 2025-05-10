@@ -1,15 +1,25 @@
+
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, User } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ThemeToggle from "./ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleScrollToSection = (sectionId: string) => {
     if (location.pathname !== '/') {
@@ -23,6 +33,19 @@ const Navbar = () => {
       }
     }
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const handleStartPractice = () => {
+    if (isAuthenticated) {
+      navigate("/setup");
+    } else {
+      navigate("/login");
+    }
   };
 
   const navLinks = [
@@ -68,8 +91,31 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           
-          <Button asChild className="hidden md:flex">
-            <Link to="/setup">Start Practice</Link>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-6 w-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled className="font-medium">
+                  {user?.name || 'User'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild className="hidden md:flex">
+              <Link to="/login">Login</Link>
+            </Button>
+          )}
+          
+          <Button onClick={handleStartPractice} className="hidden md:flex">
+            Start Practice
           </Button>
 
           {/* Mobile Menu */}
@@ -113,11 +159,38 @@ const Navbar = () => {
                       )
                     ))}
                   </nav>
-                  <Button asChild className="mt-4">
-                    <Link to="/setup" onClick={() => setIsMenuOpen(false)}>
-                      Start Practice
-                    </Link>
-                  </Button>
+                  
+                  {isAuthenticated ? (
+                    <>
+                      <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                        <div className="text-lg font-medium">
+                          {user?.name || 'User'}
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={handleLogout}>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Logout
+                        </Button>
+                      </div>
+                      <Button onClick={() => {
+                        navigate("/setup");
+                        setIsMenuOpen(false);
+                      }}>
+                        Start Practice
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button asChild variant="outline" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/login">Login / Sign Up</Link>
+                      </Button>
+                      <Button onClick={() => {
+                        navigate("/login");
+                        setIsMenuOpen(false);
+                      }}>
+                        Start Practice
+                      </Button>
+                    </>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
