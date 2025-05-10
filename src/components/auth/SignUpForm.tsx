@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthForm } from "@/hooks/useAuthForm";
-import { FcGoogle } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 
 // Sign up form schema
 const signUpSchema = z.object({

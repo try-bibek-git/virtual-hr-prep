@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, Sun, Moon, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +20,25 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
+
+  // Get user display name from user metadata or email
+  const getUserDisplayName = () => {
+    if (!user) return 'User';
+    
+    // Try to get name from user metadata
+    const metadata = user.user_metadata;
+    if (metadata && metadata.name) {
+      return metadata.name;
+    }
+    
+    // Try to get name from user metadata full_name
+    if (metadata && metadata.full_name) {
+      return metadata.full_name;
+    }
+    
+    // Fallback to email
+    return user.email ? user.email.split('@')[0] : 'User';
+  };
 
   const handleScrollToSection = (sectionId: string) => {
     if (location.pathname !== '/') {
@@ -54,6 +73,9 @@ const Navbar = () => {
     { name: "Testimonials", href: "#testimonials", onClick: () => handleScrollToSection('testimonials') },
     { name: "FAQ", href: "/faq" },
   ];
+
+  // Get the user display name
+  const userDisplayName = getUserDisplayName();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -100,7 +122,7 @@ const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem disabled className="font-medium">
-                  {user?.name || 'User'}
+                  {userDisplayName}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -164,7 +186,7 @@ const Navbar = () => {
                     <>
                       <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
                         <div className="text-lg font-medium">
-                          {user?.name || 'User'}
+                          {userDisplayName}
                         </div>
                         <Button variant="ghost" size="sm" onClick={handleLogout}>
                           <LogOut className="mr-2 h-4 w-4" />
