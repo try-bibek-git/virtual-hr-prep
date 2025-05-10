@@ -73,10 +73,10 @@ export function useAuthForm() {
       const success = await loginWithGoogle();
       if (success) {
         toast({
-          title: "Login successful!",
-          description: "Redirecting to setup page...",
+          title: "Redirecting to Google",
+          description: "Please complete the authentication process.",
         });
-        navigate("/setup");
+        // The redirect will happen automatically through Supabase
       } else {
         toast({
           title: "Google login failed",

@@ -12,8 +12,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Github } from "lucide-react";
 import { useAuthForm } from "@/hooks/useAuthForm";
+import { FcGoogle } from "lucide-react";
 
 // Sign in form schema
 const signInSchema = z.object({
@@ -100,7 +100,7 @@ export function SignInForm({ defaultEmail = "", defaultPassword = "" }: SignInFo
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
-        <Github className="mr-2 h-4 w-4" />
+        <FcGoogle className="mr-2 h-4 w-4" />
         Google
       </Button>
     </>
