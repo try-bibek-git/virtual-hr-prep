@@ -16,34 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Google } from "lucide-react";
-
-// Create a context for managing authentication
-import { createContext, useContext } from "react";
-
-type AuthContextType = {
-  isAuthenticated: boolean;
-  user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  loginWithGoogle: () => Promise<boolean>;
-};
-
-type User = {
-  name: string;
-  email: string;
-};
-
-// Create the auth context with default values
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  user: null,
-  login: async () => false,
-  register: async () => false,
-  logout: () => {},
-  loginWithGoogle: async () => false,
-});
+import { Github } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Sign up form schema
 const signUpSchema = z.object({
@@ -57,8 +31,6 @@ const signInSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   password: z.string().min(1, { message: "Password is required." }),
 });
-
-export const useAuth = () => useContext(AuthContext);
 
 const Login = () => {
   const navigate = useNavigate();
@@ -252,7 +224,7 @@ const Login = () => {
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
                 >
-                  <Google className="mr-2 h-4 w-4" />
+                  <Github className="mr-2 h-4 w-4" />
                   Google
                 </Button>
               </TabsContent>
@@ -329,7 +301,7 @@ const Login = () => {
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
                 >
-                  <Google className="mr-2 h-4 w-4" />
+                  <Github className="mr-2 h-4 w-4" />
                   Google
                 </Button>
               </TabsContent>
