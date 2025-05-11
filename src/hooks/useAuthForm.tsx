@@ -40,7 +40,8 @@ export function useAuthForm() {
   const handleSignUp = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      const success = await register(name, email, password);
+      const { success, error } = await register(name, email, password);
+      
       if (success) {
         toast({
           title: "Registration successful!",
@@ -48,17 +49,32 @@ export function useAuthForm() {
         });
         return true;
       } else {
+        // Handle specific error cases
+        let errorMessage = "Something went wrong. Please try again.";
+        
+        if (error?.message?.toLowerCase().includes("user already registered")) {
+          errorMessage = "This email is already registered. Please use a different email or sign in.";
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Registration failed",
-          description: "This email may already be in use.",
+          description: errorMessage,
           variant: "destructive",
         });
         return false;
       }
-    } catch (error) {
+    } catch (error: any) {
+      let errorMessage = "Something went wrong. Please try again.";
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Registration failed",
-        description: "Something went wrong. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       return false;

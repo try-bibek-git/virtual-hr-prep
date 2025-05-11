@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +7,7 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: any }>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<boolean>;
 };
@@ -18,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   login: async () => false,
-  register: async () => false,
+  register: async () => ({ success: false }),
   logout: async () => {},
   loginWithGoogle: async () => false,
 });
@@ -68,9 +67,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const register = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: any }> => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -82,12 +81,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (error) {
         console.error("Registration error:", error.message);
-        return false;
+        return { success: false, error };
       }
-      return true;
+      
+      // Check for the error code that supabase returns when user is already registered
+      if (data?.user === null) {
+        return { 
+          success: false, 
+          error: { message: "User already registered. Please sign in instead." } 
+        };
+      }
+      
+      return { success: true };
     } catch (error) {
       console.error("Unexpected registration error:", error);
-      return false;
+      return { success: false, error };
     }
   };
 
