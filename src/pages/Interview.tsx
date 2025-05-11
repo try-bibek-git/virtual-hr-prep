@@ -1,35 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, Clock } from "lucide-react";
-
-// Sample questions based on interview type
-const sampleQuestions = {
-  Technical: [
-    "Walk me through how you would design a URL shortening service.",
-    "Explain the concept of RESTful APIs and their key principles.",
-    "How do you approach debugging a complex issue in your code?",
-    "Describe a situation where you had to optimize a piece of code for performance.",
-    "What strategies do you use for testing your code?",
-  ],
-  Behavioral: [
-    "Tell me about a time you faced a significant challenge at work. How did you handle it?",
-    "Describe a situation where you had to work with a difficult team member.",
-    "Give an example of a goal you set for yourself and how you achieved it.",
-    "Tell me about a time when you had to make an important decision with limited information.",
-    "Describe how you handle working under pressure and tight deadlines.",
-  ],
-  Mixed: [
-    "Tell me about yourself and your technical background.",
-    "Describe a challenging project you worked on and the technologies you used.",
-    "How do you stay updated with the latest trends in your field?",
-    "Tell me about a time when you had to learn a new technology quickly. How did you approach it?",
-    "What's your approach to balancing code quality with meeting deadlines?",
-  ],
-};
+import { ArrowRight, Clock, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Interview = () => {
   const location = useLocation();
@@ -40,6 +19,8 @@ const Interview = () => {
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes per question
   const [isTimerActive, setIsTimerActive] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Get user profile from location state
   const profile = location.state || {
@@ -49,27 +30,60 @@ const Interview = () => {
     interviewType: "Mixed",
   };
 
-  // Initialize questions based on interview type
+  // Load questions from Gemini API
   useEffect(() => {
-    const interviewQuestions = sampleQuestions[profile.interviewType as keyof typeof sampleQuestions] || sampleQuestions.Mixed;
-    setQuestions(interviewQuestions);
-    setAnswers(new Array(interviewQuestions.length).fill(""));
-  }, [profile.interviewType]);
+    const fetchQuestions = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const { data, error } = await supabase.functions.invoke("gemini-interview", {
+          body: {
+            action: "generate-questions",
+            profile
+          }
+        });
+
+        if (error) {
+          throw new Error(error.message || "Failed to generate questions");
+        }
+
+        if (!data || !data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
+          throw new Error("Invalid response from Gemini API");
+        }
+
+        setQuestions(data.questions);
+        setAnswers(new Array(data.questions.length).fill(""));
+        setTimeLeft(120); // Reset timer
+      } catch (err: any) {
+        console.error("Error fetching questions:", err);
+        setError(err.message || "Failed to generate interview questions");
+        // Fallback to sample questions
+        const fallbackQuestions = getSampleQuestions(profile.interviewType);
+        setQuestions(fallbackQuestions);
+        setAnswers(new Array(fallbackQuestions.length).fill(""));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, [profile]);
 
   // Timer countdown
   useEffect(() => {
     let timer: number;
-    if (isTimerActive && timeLeft > 0) {
+    if (isTimerActive && timeLeft > 0 && !isLoading) {
       timer = window.setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && !isLoading) {
       handleNextQuestion();
     }
     return () => {
       clearInterval(timer);
     };
-  }, [isTimerActive, timeLeft]);
+  }, [isTimerActive, timeLeft, isLoading]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -94,6 +108,12 @@ const Interview = () => {
       setCurrentAnswer("");
       setTimeLeft(120); // Reset timer for next question
     } else {
+      // Show loading toast
+      toast({
+        title: "Analyzing your responses",
+        description: "Please wait while we evaluate your interview...",
+      });
+      
       // End of interview, navigate to results
       navigate("/results", { 
         state: { 
@@ -106,6 +126,68 @@ const Interview = () => {
   };
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  // Fallback sample questions
+  const getSampleQuestions = (interviewType: string) => {
+    const sampleQuestions = {
+      Technical: [
+        "Walk me through how you would design a URL shortening service.",
+        "Explain the concept of RESTful APIs and their key principles.",
+        "How do you approach debugging a complex issue in your code?",
+        "Describe a situation where you had to optimize a piece of code for performance.",
+        "What strategies do you use for testing your code?",
+      ],
+      Behavioral: [
+        "Tell me about a time you faced a significant challenge at work. How did you handle it?",
+        "Describe a situation where you had to work with a difficult team member.",
+        "Give an example of a goal you set for yourself and how you achieved it.",
+        "Tell me about a time when you had to make an important decision with limited information.",
+        "Describe how you handle working under pressure and tight deadlines.",
+      ],
+      Mixed: [
+        "Tell me about yourself and your technical background.",
+        "Describe a challenging project you worked on and the technologies you used.",
+        "How do you stay updated with the latest trends in your field?",
+        "Tell me about a time when you had to learn a new technology quickly. How did you approach it?",
+        "What's your approach to balancing code quality with meeting deadlines?",
+      ],
+    };
+    
+    return sampleQuestions[interviewType as keyof typeof sampleQuestions] || sampleQuestions.Mixed;
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="text-center space-y-4 max-w-md mx-auto">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+          <h2 className="text-2xl font-bold">Preparing Your Interview</h2>
+          <p className="text-muted-foreground">
+            Our AI is crafting personalized questions for your {profile.interviewType} interview...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error && questions.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="text-center space-y-4 max-w-md mx-auto">
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>Error Loading Interview</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+          <Button variant="outline" onClick={() => navigate("/setup")}>
+            Return to Setup
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -129,11 +211,19 @@ const Interview = () => {
             </div>
           </div>
 
+          {error && (
+            <Alert variant="warning" className="mb-6">
+              <AlertDescription>
+                {error} We're using our backup questions instead.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Card className="mb-8 shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 animate-fadeIn">
             <CardHeader>
               <CardTitle className="text-xl">Question {currentQuestion + 1}</CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                {profile.interviewType} Interview for {profile.jobRole.replace("_", " ")}
+                {profile.interviewType} Interview for {profile.jobRole.replace(/_/g, " ")}
               </CardDescription>
             </CardHeader>
             <CardContent>
