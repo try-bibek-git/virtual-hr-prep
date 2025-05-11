@@ -14,12 +14,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthForm } from "@/hooks/useAuthForm";
 import { FcGoogle } from "react-icons/fc";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
-// Sign up form schema
+// Enhanced sign up form schema with password validation
 const signUpSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters." }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters." })
+    .refine(
+      (password) => /[a-zA-Z]/.test(password) && /[0-9]/.test(password),
+      {
+        message: "Password must contain at least one letter and one number.",
+      }
+    ),
 });
 
 type SignUpFormProps = {
@@ -36,6 +46,7 @@ export function SignUpForm({ onSuccessfulSignUp }: SignUpFormProps) {
       email: "",
       password: "",
     },
+    mode: "onBlur", // Validate on blur for a better user experience
   });
 
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
@@ -45,10 +56,20 @@ export function SignUpForm({ onSuccessfulSignUp }: SignUpFormProps) {
     }
   };
 
+  // Track form validation errors to display the alert
+  const passwordError = form.formState.errors.password?.message;
+
   return (
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {passwordError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{passwordError}</AlertDescription>
+            </Alert>
+          )}
+
           <FormField
             control={form.control}
             name="name"
@@ -87,6 +108,9 @@ export function SignUpForm({ onSuccessfulSignUp }: SignUpFormProps) {
                   <Input placeholder="••••••••" type="password" {...field} />
                 </FormControl>
                 <FormMessage />
+                <p className="text-xs text-gray-500 mt-1">
+                  Password must be at least 6 characters and contain both letters and numbers.
+                </p>
               </FormItem>
             )}
           />
