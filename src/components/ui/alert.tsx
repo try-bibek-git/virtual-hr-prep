@@ -22,6 +22,7 @@ const alertVariants = cva(
   }
 )
 
+// Update the type to include "warning" variant
 const Alert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
