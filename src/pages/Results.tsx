@@ -1,14 +1,19 @@
-import { useLocation, Link, useNavigate } from "react-router-dom";
+
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Download, Printer, Star, ChevronUp, ChevronDown, CheckCircle, 
-  XCircle, BarChart3, ArrowRight, Loader2 
-} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
+
+// Import newly created components
+import ScoreCard from "@/components/results/ScoreCard";
+import StrengthsWeaknesses from "@/components/results/StrengthsWeaknesses";
+import SuggestionsList from "@/components/results/SuggestionsList";
+import AnswerReview from "@/components/results/AnswerReview";
+import ResultsActions from "@/components/results/ResultsActions";
+import ErrorState from "@/components/results/ErrorState";
+import LoadingDisplay from "@/components/interview/LoadingDisplay";
 
 interface EvaluationResults {
   score: number;
@@ -85,14 +90,6 @@ const Results = () => {
     getEvaluation();
   }, [profile, questions, answers]);
 
-  // Function to get color based on score
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-500";
-    if (score >= 75) return "text-blue-500";
-    if (score >= 60) return "text-yellow-500";
-    return "text-red-500";
-  };
-
   // Generate a fallback evaluation if the API fails
   const generateFallbackEvaluation = (): EvaluationResults => {
     const hasContent = answers.filter(a => a.trim().length > 10).length;
@@ -126,55 +123,17 @@ const Results = () => {
 
   // Show loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="text-center space-y-4 max-w-md mx-auto">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <h2 className="text-2xl font-bold">Analyzing Your Responses</h2>
-          <p className="text-muted-foreground">
-            Our AI is evaluating your interview performance...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingDisplay profile={profile} />;
   }
 
   // Show error if no interview data or evaluation failed
   if ((error && !evaluation) || !questions.length) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="text-center space-y-4 max-w-md mx-auto">
-          <Alert variant="destructive" className="mb-6">
-            <AlertTitle>Error Loading Results</AlertTitle>
-            <AlertDescription>
-              {error || "No interview data found. Please complete an interview first."}
-            </AlertDescription>
-          </Alert>
-          <Button onClick={() => navigate("/setup")}>
-            Start a New Interview
-          </Button>
-        </div>
-      </div>
-    );
+    return <ErrorState error={error || "No interview data found"} />;
   }
 
   // If no evaluation results, show error
   if (!evaluation) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <Alert variant="destructive" className="max-w-md mx-auto">
-          <AlertTitle>Error Loading Results</AlertTitle>
-          <AlertDescription>
-            We couldn't process your interview results. Please try again.
-          </AlertDescription>
-        </Alert>
-        <div className="mt-6 text-center">
-          <Button onClick={() => navigate("/setup")}>
-            Start a New Interview
-          </Button>
-        </div>
-      </div>
-    );
+    return <ErrorState error="We couldn't process your interview results. Please try again." />;
   }
 
   return (
@@ -199,136 +158,19 @@ const Results = () => {
           )}
 
           {/* Score Card */}
-          <Card className="mb-8 shadow-lg border border-gray-200 dark:border-gray-700">
-            <CardHeader className="text-center pb-2">
-              <CardTitle>Overall Performance</CardTitle>
-              <CardDescription>Based on your responses to {questions.length} questions</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <div className={`text-6xl md:text-7xl font-bold mb-4 ${getScoreColor(evaluation.score)}`}>
-                {evaluation.score}%
-              </div>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-6 w-6 ${star <= Math.round(evaluation.score/20) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                  />
-                ))}
-              </div>
-              <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-                {evaluation.feedback || (
-                  evaluation.score >= 90 ? "Excellent! You're well-prepared for your interviews." :
-                  evaluation.score >= 75 ? "Great job! With a few improvements, you'll be interview-ready." :
-                  evaluation.score >= 60 ? "Good effort! More practice will help you improve significantly." :
-                  "Keep practicing! You're on your way to interview success."
-                )}
-              </p>
-            </CardContent>
-          </Card>
+          <ScoreCard score={evaluation.score} feedback={evaluation.feedback} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            {/* Strengths */}
-            <Card className="shadow-md border border-gray-200 dark:border-gray-700">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <CardTitle>Strengths</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {evaluation.strengths.map((strength, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <ChevronUp className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                      <span>{strength}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Weaknesses */}
-            <Card className="shadow-md border border-gray-200 dark:border-gray-700">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <XCircle className="h-5 w-5 text-red-500" />
-                  <CardTitle>Areas for Improvement</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {evaluation.weaknesses.map((weakness, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <ChevronDown className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-                      <span>{weakness}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Strengths and Weaknesses */}
+          <StrengthsWeaknesses strengths={evaluation.strengths} weaknesses={evaluation.weaknesses} />
 
           {/* Detailed Suggestions */}
-          <Card className="mb-8 shadow-md border border-gray-200 dark:border-gray-700">
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-blue-500" />
-                <CardTitle>Detailed Suggestions</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                {evaluation.suggestions.map((suggestion, index) => (
-                  <li key={index} className="flex items-start gap-3 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0">
-                    <div className="flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm font-medium shrink-0">
-                      {index + 1}
-                    </div>
-                    <span>{suggestion}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          <SuggestionsList suggestions={evaluation.suggestions} />
 
           {/* Question and Answer Review */}
-          <Card className="mb-8 shadow-md border border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle>Your Interview Responses</CardTitle>
-              <CardDescription>
-                Review your answers to the interview questions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {questions.map((question, index) => (
-                  <div key={index} className="pb-4 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0">
-                    <h3 className="text-lg font-medium mb-2">Question {index + 1}:</h3>
-                    <p className="mb-3 text-gray-800 dark:text-gray-200">{question}</p>
-                    <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Your Answer:</h4>
-                    <p className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                      {answers[index] || <em className="text-gray-400">No answer provided</em>}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <AnswerReview questions={questions} answers={answers} />
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="flex items-center gap-2">
-              <Download className="h-5 w-5" /> Download Report
-            </Button>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Printer className="h-5 w-5" /> Print Results
-            </Button>
-            <Button variant="secondary" asChild className="flex items-center gap-2">
-              <Link to="/setup">
-                Try Another Interview <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+          <ResultsActions />
         </div>
       </main>
     </div>
