@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,7 +55,12 @@ serve(async (req) => {
         throw new Error(data.error.message || "Error generating questions");
       }
 
-      let questionsText = data.candidates[0].content.parts[0].text;
+      let questionsText = "";
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+        questionsText = data.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Unexpected response format from Gemini API");
+      }
       
       // Clean up response to ensure valid JSON
       questionsText = questionsText.replace(/```json|```/g, '').trim();
@@ -118,7 +123,12 @@ serve(async (req) => {
         throw new Error(data.error.message || "Error evaluating answers");
       }
 
-      let evaluationText = data.candidates[0].content.parts[0].text;
+      let evaluationText = "";
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+        evaluationText = data.candidates[0].content.parts[0].text;
+      } else {
+        throw new Error("Unexpected response format from Gemini API");
+      }
       
       // Clean up response to ensure valid JSON
       evaluationText = evaluationText.replace(/```json|```/g, '').trim();
