@@ -22,6 +22,8 @@ const alertVariants = cva(
   }
 )
 
+// This type extraction is crucial - we need to make sure it includes all variants
+// The VariantProps utility will extract the variant types from the cva function
 const Alert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
