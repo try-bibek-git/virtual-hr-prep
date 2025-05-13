@@ -80,7 +80,7 @@ const Results = () => {
         toast({
           title: "Evaluation Error",
           description: "Using our backup evaluation system instead.",
-          variant: "warning"
+          variant: "default"
         });
       } finally {
         setIsLoading(false);
