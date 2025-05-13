@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 interface ErrorStateProps {
   error: string;
-  variant?: "destructive" | "warning" | "default";
+  variant?: "destructive" | "default";
 }
 
 const ErrorState = ({ error, variant = "destructive" }: ErrorStateProps) => {

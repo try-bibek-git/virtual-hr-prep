@@ -149,7 +149,7 @@ const Results = () => {
 
           {/* Error notification if using fallback but still showing results */}
           {error && evaluation && (
-            <Alert variant="warning" className="mb-8">
+            <Alert variant="default" className="mb-8">
               <AlertTitle>Notice</AlertTitle>
               <AlertDescription>
                 {error} We're showing results based on our backup evaluation system.
