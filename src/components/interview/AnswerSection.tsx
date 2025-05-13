@@ -23,8 +23,8 @@ const AnswerSection = ({
   isLastQuestion,
 }: AnswerSectionProps) => {
   const [isRecording, setIsRecording] = useState(false);
-  // Use the correct type or undefined
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  // Fix the type definition to avoid TS errors
+  const [recognition, setRecognition] = useState<any>(null);
 
   const startSpeechRecognition = () => {
     // Check if the browser supports Speech Recognition
@@ -69,9 +69,10 @@ const AnswerSection = ({
         }
         
         if (finalTranscript) {
-          // Create a synthetic event to update the answer
+          // Create a synthetic event to APPEND the new text to the existing answer
+          // instead of replacing it
           const syntheticEvent = {
-            target: { value: answer + finalTranscript + ' ' },
+            target: { value: answer + " " + finalTranscript.trim() },
           } as React.ChangeEvent<HTMLTextAreaElement>;
           
           onAnswerChange(syntheticEvent);
