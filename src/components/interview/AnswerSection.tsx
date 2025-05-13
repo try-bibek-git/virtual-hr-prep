@@ -23,6 +23,7 @@ const AnswerSection = ({
   isLastQuestion,
 }: AnswerSectionProps) => {
   const [isRecording, setIsRecording] = useState(false);
+  // Use the correct type or undefined
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
   const startSpeechRecognition = () => {
