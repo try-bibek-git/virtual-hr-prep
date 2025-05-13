@@ -5,15 +5,16 @@ import { useNavigate } from "react-router-dom";
 
 interface ErrorStateProps {
   error: string;
+  variant?: "destructive" | "warning" | "default";
 }
 
-const ErrorState = ({ error }: ErrorStateProps) => {
+const ErrorState = ({ error, variant = "destructive" }: ErrorStateProps) => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="text-center space-y-4 max-w-md mx-auto">
-        <Alert variant="destructive" className="mb-6">
+        <Alert variant={variant} className="mb-6">
           <AlertTitle>Error Loading Results</AlertTitle>
           <AlertDescription>
             {error || "No interview data found. Please complete an interview first."}
