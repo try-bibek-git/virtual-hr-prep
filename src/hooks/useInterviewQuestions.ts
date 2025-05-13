@@ -61,16 +61,25 @@ export const useInterviewQuestions = (profile: Profile) => {
       }
 
       if (!data || !data.questions || !Array.isArray(data.questions) || data.questions.length === 0) {
-        throw new Error("Invalid response from Gemini API");
+        throw new Error("Invalid response from AI API");
       }
 
       setQuestions(data.questions);
+      toast({
+        title: "Questions Generated",
+        description: "Your personalized interview questions are ready!",
+      });
     } catch (err: any) {
       console.error("Error fetching questions:", err);
       setError(err.message || "Failed to generate interview questions");
       // Fallback to sample questions
       const fallbackQuestions = getSampleQuestions(profile.interviewType);
       setQuestions(fallbackQuestions);
+      toast({
+        title: "Using Sample Questions",
+        description: "We encountered an issue with AI question generation. Using sample questions instead.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
