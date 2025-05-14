@@ -11,6 +11,13 @@ import Results from "./pages/Results";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
+import Features from "./pages/Features";
+import InterviewGuides from "./pages/InterviewGuides";
+import Tips from "./pages/Tips";
+import AboutUs from "./pages/AboutUs";
+import Careers from "./pages/Careers";
+import Contact from "./pages/Contact";
+import Blog from "./pages/Blog";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -48,6 +55,13 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/guides" element={<InterviewGuides />} />
+              <Route path="/tips" element={<Tips />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
