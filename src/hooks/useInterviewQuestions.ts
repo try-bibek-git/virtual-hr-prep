@@ -14,6 +14,7 @@ export const useInterviewQuestions = (profile: Profile) => {
   const [questions, setQuestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [api, setApi] = useState<string | null>(null);
 
   // Fallback sample questions
   const getSampleQuestions = (interviewType: string) => {
@@ -47,6 +48,7 @@ export const useInterviewQuestions = (profile: Profile) => {
   const loadQuestions = async () => {
     setIsLoading(true);
     setError(null);
+    setApi(null);
     
     try {
       const { data, error } = await supabase.functions.invoke("gemini-interview", {
@@ -65,21 +67,48 @@ export const useInterviewQuestions = (profile: Profile) => {
       }
 
       setQuestions(data.questions);
+      setApi(data.source || "Gemini");
       toast({
         title: "Questions Generated",
-        description: "Your personalized interview questions are ready!",
+        description: `Your personalized interview questions are ready! (Using ${data.source || "AI"})`,
       });
     } catch (err: any) {
       console.error("Error fetching questions:", err);
       setError(err.message || "Failed to generate interview questions");
-      // Fallback to sample questions
-      const fallbackQuestions = getSampleQuestions(profile.interviewType);
-      setQuestions(fallbackQuestions);
-      toast({
-        title: "Using Sample Questions",
-        description: "We encountered an issue with AI question generation. Using sample questions instead.",
-        variant: "destructive"
-      });
+      
+      // Try one more time with a direct flag for OpenAI
+      try {
+        const { data, error: retryError } = await supabase.functions.invoke("gemini-interview", {
+          body: {
+            action: "generate-questions",
+            profile,
+            forceOpenAI: true
+          }
+        });
+        
+        if (retryError || !data || !data.questions || !Array.isArray(data.questions)) {
+          throw new Error("Both AI providers failed");
+        }
+        
+        setQuestions(data.questions);
+        setApi(data.source || "OpenAI (fallback)");
+        toast({
+          title: "Questions Generated",
+          description: `Your personalized interview questions are ready! (Using ${data.source || "OpenAI fallback"})`,
+          variant: "default"
+        });
+      } catch (retryErr: any) {
+        console.error("Fallback also failed:", retryErr);
+        // Final fallback to sample questions
+        const fallbackQuestions = getSampleQuestions(profile.interviewType);
+        setQuestions(fallbackQuestions);
+        setApi("Sample Questions");
+        toast({
+          title: "Using Sample Questions",
+          description: "We encountered an issue with AI question generation. Using sample questions instead.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -89,5 +118,5 @@ export const useInterviewQuestions = (profile: Profile) => {
     loadQuestions();
   }, [profile]);
 
-  return { questions, isLoading, error, loadQuestions };
+  return { questions, isLoading, error, api, loadQuestions };
 };

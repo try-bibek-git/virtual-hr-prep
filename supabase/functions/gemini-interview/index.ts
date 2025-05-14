@@ -19,16 +19,18 @@ serve(async (req) => {
   }
 
   try {
-    const { action, profile, questions, answers } = await req.json();
+    const { action, profile, questions, answers, forceOpenAI = false } = await req.json();
 
     if (!GEMINI_API_KEY && !OPENAI_API_KEY) {
       throw new Error("No AI API keys configured");
     }
 
     if (action === "generate-questions") {
-      // First try with Gemini if the API key is available
-      if (GEMINI_API_KEY) {
+      // First try with Gemini if the API key is available and not forced to use OpenAI
+      if (GEMINI_API_KEY && !forceOpenAI) {
         try {
+          console.log("Attempting to generate questions with Gemini...");
+          
           // Create prompt for generating interview questions
           const prompt = `You are an expert interviewer specialized in ${profile.interviewType} interviews for ${profile.jobRole.replace("_", " ")} positions. 
           The candidate has ${profile.experienceLevel.replace("_", " ")} experience.
@@ -87,21 +89,26 @@ serve(async (req) => {
             }
           }
 
-          return new Response(JSON.stringify({ questions: parsedQuestions }), {
+          return new Response(JSON.stringify({ 
+            questions: parsedQuestions,
+            source: "Gemini" 
+          }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         } catch (geminiError) {
           console.error("Gemini API error:", geminiError.message);
-          // If Gemini fails, try OpenAI as fallback if available
+          // If Gemini fails and OpenAI is available, fall back to OpenAI
           if (!OPENAI_API_KEY) {
             throw geminiError; // Re-throw if no fallback available
           }
         }
       }
 
-      // Fallback to OpenAI or if no Gemini key is available
+      // Fallback to OpenAI or if no Gemini key is available or if forced
       if (OPENAI_API_KEY) {
         try {
+          console.log("Generating questions with OpenAI...");
+          
           const prompt = `You are an expert interviewer specialized in ${profile.interviewType} interviews for ${profile.jobRole.replace("_", " ")} positions. 
           The candidate has ${profile.experienceLevel.replace("_", " ")} experience.
           Generate 5 thoughtful and challenging interview questions that would help assess this candidate's suitability.
@@ -158,7 +165,10 @@ serve(async (req) => {
             }
           }
 
-          return new Response(JSON.stringify({ questions: parsedQuestions }), {
+          return new Response(JSON.stringify({ 
+            questions: parsedQuestions,
+            source: "OpenAI" 
+          }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         } catch (openAIError) {
@@ -168,8 +178,10 @@ serve(async (req) => {
       }
     } 
     else if (action === "evaluate-answers") {
-      if (GEMINI_API_KEY) {
+      if (GEMINI_API_KEY && !forceOpenAI) {
         try {
+          console.log("Attempting to evaluate answers with Gemini...");
+          
           // Create prompt for evaluating answers
           const prompt = `You are an expert evaluator specialized in ${profile.interviewType} interviews for ${profile.jobRole.replace("_", " ")} positions. 
           The candidate has ${profile.experienceLevel.replace("_", " ")} experience.
@@ -224,7 +236,10 @@ serve(async (req) => {
             throw new Error("Failed to parse evaluation results");
           }
 
-          return new Response(JSON.stringify(evaluation), {
+          return new Response(JSON.stringify({
+            ...evaluation,
+            source: "Gemini"
+          }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         } catch (geminiError) {
@@ -239,6 +254,8 @@ serve(async (req) => {
       // Fallback to OpenAI or if no Gemini key is available
       if (OPENAI_API_KEY) {
         try {
+          console.log("Evaluating answers with OpenAI...");
+          
           const prompt = `You are an expert evaluator specialized in ${profile.interviewType} interviews for ${profile.jobRole.replace("_", " ")} positions. 
           The candidate has ${profile.experienceLevel.replace("_", " ")} experience.
           
@@ -294,7 +311,10 @@ serve(async (req) => {
             throw new Error("Failed to parse evaluation results from OpenAI");
           }
 
-          return new Response(JSON.stringify(evaluation), {
+          return new Response(JSON.stringify({
+            ...evaluation,
+            source: "OpenAI"
+          }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         } catch (openAIError) {
@@ -309,7 +329,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("AI API error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "An error occurred" }),
+      JSON.stringify({ 
+        error: error.message || "An error occurred",
+        success: false
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

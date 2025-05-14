@@ -6,7 +6,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
-// Import newly created components
+// Import components
 import ScoreCard from "@/components/results/ScoreCard";
 import StrengthsWeaknesses from "@/components/results/StrengthsWeaknesses";
 import SuggestionsList from "@/components/results/SuggestionsList";
@@ -21,6 +21,7 @@ interface EvaluationResults {
   weaknesses: string[];
   suggestions: string[];
   feedback: string;
+  source?: string;
 }
 
 const Results = () => {
@@ -35,8 +36,9 @@ const Results = () => {
   const [evaluation, setEvaluation] = useState<EvaluationResults | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [apiSource, setApiSource] = useState<string | null>(null);
 
-  // Get evaluation from Gemini API
+  // Get evaluation from AI API
   useEffect(() => {
     const getEvaluation = async () => {
       setIsLoading(true);
@@ -70,18 +72,51 @@ const Results = () => {
         }
 
         setEvaluation(data as EvaluationResults);
+        setApiSource(data.source || null);
+        toast({
+          title: "Evaluation Complete",
+          description: `Your interview has been evaluated using ${data.source || "AI"}!`,
+        });
       } catch (err: any) {
         console.error("Error evaluating interview:", err);
         setError(err.message || "Failed to evaluate your interview");
         
-        // Generate fallback evaluation
-        setEvaluation(generateFallbackEvaluation());
-        
-        toast({
-          title: "Evaluation Error",
-          description: "Using our backup evaluation system instead.",
-          variant: "default"
-        });
+        // Try again with OpenAI fallback explicitly
+        try {
+          const { data, error: retryError } = await supabase.functions.invoke("gemini-interview", {
+            body: {
+              action: "evaluate-answers",
+              profile,
+              questions,
+              answers,
+              forceOpenAI: true
+            }
+          });
+          
+          if (retryError || !data || typeof data.score !== 'number' || !Array.isArray(data.strengths)) {
+            throw new Error("Both AI providers failed");
+          }
+          
+          setEvaluation(data as EvaluationResults);
+          setApiSource(data.source || "OpenAI (fallback)");
+          toast({
+            title: "Evaluation Complete",
+            description: `Your interview has been evaluated using ${data.source || "OpenAI fallback"}!`,
+          });
+        } catch (retryErr) {
+          console.error("Fallback evaluation also failed:", retryErr);
+          
+          // Generate fallback evaluation
+          const fallbackEval = generateFallbackEvaluation();
+          setEvaluation(fallbackEval);
+          setApiSource("Backup System");
+          
+          toast({
+            title: "Using Backup Evaluation",
+            description: "We encountered an issue with our AI. Using our backup evaluation system instead.",
+            variant: "destructive"
+          });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -117,13 +152,14 @@ const Results = () => {
         "Practice speaking more confidently about technical concepts",
         "Consider adding brief examples of how you've overcome similar challenges",
       ],
-      feedback: "Overall, a solid interview performance with room for improvement. Focus on providing more specific examples and quantifiable results in your answers."
+      feedback: "Overall, a solid interview performance with room for improvement. Focus on providing more specific examples and quantifiable results in your answers.",
+      source: "Backup System"
     };
   };
 
   // Show loading state
   if (isLoading) {
-    return <LoadingDisplay profile={profile} />;
+    return <LoadingDisplay profile={profile} forResults={true} />;
   }
 
   // Show error if no interview data or evaluation failed
@@ -145,6 +181,11 @@ const Results = () => {
             <p className="text-xl text-gray-600 dark:text-gray-400">
               Great job {profile.name}! Here's how you performed.
             </p>
+            {apiSource && (
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Evaluated using {apiSource}
+              </div>
+            )}
           </div>
 
           {/* Error notification if using fallback but still showing results */}
@@ -152,7 +193,7 @@ const Results = () => {
             <Alert variant="default" className="mb-8">
               <AlertTitle>Notice</AlertTitle>
               <AlertDescription>
-                {error} We're showing results based on our backup evaluation system.
+                {error} We're showing results based on our {apiSource || "backup evaluation system"}.
               </AlertDescription>
             </Alert>
           )}
