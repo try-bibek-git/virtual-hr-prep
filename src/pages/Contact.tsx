@@ -28,7 +28,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-1">Email Us</h3>
-                  <p className="text-gray-600">contact@virtualhr.com</p>
+                  <p className="text-gray-600">try.bibek@gmail.com</p>
                 </div>
               </CardContent>
             </Card>
@@ -52,7 +52,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-1">Office</h3>
-                  <p className="text-gray-600">123 Innovation Drive, San Francisco, CA 94107</p>
+                  <p className="text-gray-600">Dibrugarh University, Dibrugarh, AS 786001</p>
                 </div>
               </CardContent>
             </Card>
