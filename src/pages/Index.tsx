@@ -161,7 +161,7 @@ const Index: React.FC = () => {
             </div>
             <div className="flex-1">
               <img 
-                src="/interview.png" 
+                src="/interview-dark.png" 
                 alt="Interview Illustration" 
                 className="w-full h-auto rounded-2xl shadow-lg" 
               />
