@@ -34,7 +34,7 @@ serve(async (req) => {
           // Create prompt for generating interview questions
           const prompt = `You are an expert interviewer specialized in ${profile.interviewType} interviews for ${profile.jobRole.replace("_", " ")} positions. 
           The candidate has ${profile.experienceLevel.replace("_", " ")} experience.
-          Generate 10 thoughtful and challenging interview questions that would help assess this candidate's suitability.
+          Generate 5 thoughtful and challenging interview questions that would help assess this candidate's suitability.
           The questions should be appropriate for their experience level.
           Return only the questions in a valid JSON format as an array of strings, without any additional text or explanation.
           Example: ["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"]`;
