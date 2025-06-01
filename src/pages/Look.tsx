@@ -125,15 +125,15 @@ const Look = () => {
 
       if (evalError) throw evalError;
 
-      // Store evaluation in database
+      // Store evaluation in database using raw SQL insert
       const { error: dbError } = await supabase
-        .from('user_photos')
+        .from('user_photos' as any)
         .insert({
           user_id: user.id,
           photo_url: publicUrl,
           outfit_score: evalData.score,
           outfit_feedback: evalData.feedback
-        });
+        } as any);
 
       if (dbError) throw dbError;
 
@@ -175,7 +175,7 @@ const Look = () => {
   }
 
   if (isEvaluating) {
-    return <LoadingDisplay profile={profile} message="Evaluating your professional appearance..." />;
+    return <LoadingDisplay profile={profile} />;
   }
 
   return (
