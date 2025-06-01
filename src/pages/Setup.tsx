@@ -64,11 +64,11 @@ const Setup = () => {
       setIsSubmitting(false);
       toast({
         title: "Profile Set Up",
-        description: "Your interview is being prepared.",
+        description: "Proceeding to outfit check.",
       });
       
-      // Navigate to the interview page
-      navigate("/interview", { state: values });
+      // Navigate to the look page instead of interview
+      navigate("/look", { state: values });
     }, 1000);
   }
 
@@ -200,7 +200,7 @@ const Setup = () => {
                 >
                   {isSubmitting ? "Setting Up..." : (
                     <>
-                      Start Interview <ArrowRight className="ml-2 h-5 w-5" />
+                      Continue to Outfit Check <ArrowRight className="ml-2 h-5 w-5" />
                     </>
                   )}
                 </Button>

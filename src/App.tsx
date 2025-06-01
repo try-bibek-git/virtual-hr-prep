@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Setup from "./pages/Setup";
+import Look from "./pages/Look";
 import Interview from "./pages/Interview";
 import Results from "./pages/Results";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,11 @@ const App = () => (
               <Route path="/setup" element={
                 <ProtectedRoute>
                   <Setup />
+                </ProtectedRoute>
+              } />
+              <Route path="/look" element={
+                <ProtectedRoute>
+                  <Look />
                 </ProtectedRoute>
               } />
               <Route path="/interview" element={
