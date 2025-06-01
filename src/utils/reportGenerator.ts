@@ -84,7 +84,7 @@ export const generatePDFReport = (data: ReportData) => {
   yPosition += 15;
 
   doc.setFontSize(36);
-  doc.setTextColor(data.evaluation.score >= 75 ? 0, 150, 0 : data.evaluation.score >= 60 ? 255, 140, 0 : 220, 20, 60);
+  doc.setTextColor(data.evaluation.score >= 75 ? 0 : data.evaluation.score >= 60 ? 255 : 220, data.evaluation.score >= 75 ? 150 : data.evaluation.score >= 60 ? 140 : 20, data.evaluation.score >= 75 ? 0 : data.evaluation.score >= 60 ? 0 : 60);
   doc.text(`${data.evaluation.score}%`, pageWidth / 2, yPosition, { align: 'center' });
   doc.setTextColor(0, 0, 0);
   yPosition += 25;
