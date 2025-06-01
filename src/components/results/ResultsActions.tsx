@@ -27,6 +27,7 @@ interface ResultsActionsProps {
 const ResultsActions = ({ profile, evaluation, questions, answers }: ResultsActionsProps) => {
   const handleDownloadReport = () => {
     try {
+      console.log('Starting PDF generation...');
       generatePDFReport({
         profile,
         evaluation,
