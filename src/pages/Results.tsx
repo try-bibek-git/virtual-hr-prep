@@ -211,7 +211,12 @@ const Results = () => {
           <AnswerReview questions={questions} answers={answers} />
 
           {/* Actions */}
-          <ResultsActions />
+          <ResultsActions 
+            profile={profile}
+            evaluation={evaluation}
+            questions={questions}
+            answers={answers}
+          />
         </div>
       </main>
     </div>
