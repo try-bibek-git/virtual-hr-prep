@@ -125,15 +125,15 @@ const Look = () => {
 
       if (evalError) throw evalError;
 
-      // Store evaluation in database using raw SQL insert
+      // Store evaluation in database
       const { error: dbError } = await supabase
-        .from('user_photos' as any)
+        .from('user_photos')
         .insert({
           user_id: user.id,
           photo_url: publicUrl,
           outfit_score: evalData.score,
           outfit_feedback: evalData.feedback
-        } as any);
+        });
 
       if (dbError) throw dbError;
 
