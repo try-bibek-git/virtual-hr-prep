@@ -179,21 +179,21 @@ const Look = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-blue dark:bg-gradient-blue-dark">
       <main className="flex-1 container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Your Professional Look</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-primary">Your Professional Look</h1>
             <p className="text-xl text-gray-600 dark:text-gray-400">
               Let's check your interview attire. Take a portrait photo so we can provide feedback on your professional appearance.
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100/50 dark:border-gray-700/50">
             {!capturedImage ? (
               <div className="space-y-6">
                 {/* Camera View */}
-                <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
                   {isStreaming ? (
                     <video
                       ref={videoRef}
@@ -205,7 +205,7 @@ const Look = () => {
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
-                        <Camera className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                        <Camera className="h-16 w-16 mx-auto mb-4 text-blue-400" />
                         <p className="text-gray-600 dark:text-gray-400">
                           {isCameraSupported ? "Click 'Start Camera' to begin" : "Camera not available"}
                         </p>
@@ -217,11 +217,11 @@ const Look = () => {
                 {/* Camera Controls */}
                 <div className="flex gap-4 justify-center">
                   {!isStreaming ? (
-                    <Button onClick={startCamera} disabled={!isCameraSupported} className="flex items-center gap-2">
+                    <Button onClick={startCamera} disabled={!isCameraSupported} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
                       <Camera className="h-5 w-5" /> Start Camera
                     </Button>
                   ) : (
-                    <Button onClick={capturePhoto} className="flex items-center gap-2">
+                    <Button onClick={capturePhoto} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
                       <Camera className="h-5 w-5" /> Capture Photo
                     </Button>
                   )}
@@ -230,7 +230,7 @@ const Look = () => {
             ) : (
               <div className="space-y-6">
                 {/* Captured Photo */}
-                <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
                   <img
                     src={capturedImage}
                     alt="Captured portrait"
@@ -240,12 +240,12 @@ const Look = () => {
 
                 {/* Evaluation Results */}
                 {evaluation && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="text-center mb-4">
-                      <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                      <div className="text-4xl font-bold text-primary mb-2">
                         {evaluation.score}/10
                       </div>
-                      <h3 className="text-lg font-semibold mb-2">Outfit Evaluation</h3>
+                      <h3 className="text-lg font-semibold mb-2 text-primary">Outfit Evaluation</h3>
                     </div>
                     <p className="text-gray-700 dark:text-gray-300 text-center">
                       {evaluation.feedback}
@@ -255,16 +255,16 @@ const Look = () => {
 
                 {/* Photo Controls */}
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={retakePhoto} variant="outline" className="flex items-center gap-2">
+                  <Button onClick={retakePhoto} variant="outline" className="flex items-center gap-2 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20">
                     <RotateCcw className="h-5 w-5" /> Retake Photo
                   </Button>
                   
                   {!evaluation ? (
-                    <Button onClick={evaluateOutfit} className="flex items-center gap-2">
+                    <Button onClick={evaluateOutfit} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
                       <Check className="h-5 w-5" /> Evaluate Outfit
                     </Button>
                   ) : (
-                    <Button onClick={proceedToInterview} className="flex items-center gap-2">
+                    <Button onClick={proceedToInterview} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
                       Start Interview <ArrowRight className="h-5 w-5" />
                     </Button>
                   )}
@@ -273,11 +273,11 @@ const Look = () => {
             )}
 
             {/* Skip Option */}
-            <div className="mt-6 text-center border-t pt-6">
+            <div className="mt-6 text-center border-t border-blue-100 dark:border-blue-800 pt-6">
               <Button 
                 onClick={skipOutfitCheck} 
                 variant="ghost"
-                className="text-gray-600 dark:text-gray-400"
+                className="text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20"
               >
                 Skip outfit check and proceed to interview
               </Button>

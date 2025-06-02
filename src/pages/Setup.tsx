@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -73,17 +74,17 @@ const Setup = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-blue dark:bg-gradient-blue-dark">
       <main className="flex-1 container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Set Up Your Profile</h1>
+            <h1 className="text-3xl font-bold mb-2 text-primary">Set Up Your Profile</h1>
             <p className="text-gray-600 dark:text-gray-400">
               Help us tailor your interview experience to your needs.
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100/50 dark:border-gray-700/50">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -195,7 +196,7 @@ const Setup = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full py-6 text-lg" 
+                  className="w-full py-6 text-lg bg-primary hover:bg-primary/90" 
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Setting Up..." : (
