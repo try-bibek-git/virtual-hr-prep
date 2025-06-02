@@ -23,6 +23,9 @@ npm i
 # Step 4: Install react-icons package (required for icons).
 npm install react-icons@latest
 
-# Step 5: Start the development server with auto-reloading and an instant preview.
+# Step 5 : Install JS PDF
+npm install jspdf
+
+# Step 6: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
