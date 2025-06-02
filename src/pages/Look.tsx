@@ -125,8 +125,8 @@ const Look = () => {
 
       if (evalError) throw evalError;
 
-      // Store evaluation in database
-      const { error: dbError } = await supabase
+      // Store evaluation in database with type assertion
+      const { error: dbError } = await (supabase as any)
         .from('user_photos')
         .insert({
           user_id: user.id,
