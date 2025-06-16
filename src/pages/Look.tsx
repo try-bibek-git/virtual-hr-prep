@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+
+import { useState, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, RotateCcw, Check, ArrowRight } from "lucide-react";
+import { Upload, RotateCcw, Check, ArrowRight, Image } from "lucide-react";
 import LoadingDisplay from "@/components/interview/LoadingDisplay";
 
 const Look = () => {
@@ -11,146 +12,64 @@ const Look = () => {
   const location = useLocation();
   const profile = location.state;
   
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluation, setEvaluation] = useState<{score: number, feedback: string} | null>(null);
-  const [isCameraSupported, setIsCameraSupported] = useState(true);
 
-  // Clean up camera stream on component unmount
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, []);
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const startCamera = useCallback(async () => {
-    try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setIsCameraSupported(false);
-        toast({
-          title: "Camera Not Supported",
-          description: "Your device doesn't support camera access. You can skip this step.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log("Requesting camera access...");
-      
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "user"
-        } 
-      });
-      
-      console.log("Camera stream obtained:", stream);
-      
-      if (videoRef.current) {
-        const videoElement = videoRef.current;
-        videoElement.srcObject = stream;
-        
-        // Force video to load and play
-        videoElement.onloadedmetadata = () => {
-          console.log("Video metadata loaded, dimensions:", videoElement.videoWidth, "x", videoElement.videoHeight);
-          videoElement.play()
-            .then(() => {
-              console.log("Video playback started successfully");
-              setIsStreaming(true);
-            })
-            .catch((error) => {
-              console.error("Error starting video playback:", error);
-              toast({
-                title: "Video Playback Error",
-                description: "Could not start video preview. Please try again.",
-                variant: "destructive"
-              });
-            });
-        };
-
-        // Fallback - try to play immediately if metadata is already loaded
-        if (videoElement.readyState >= 2) {
-          videoElement.play()
-            .then(() => {
-              console.log("Video playback started immediately");
-              setIsStreaming(true);
-            })
-            .catch(console.error);
-        }
-      }
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-      setIsCameraSupported(false);
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: "Camera Access Denied",
-        description: "Please allow camera access to take your photo, or skip this step.",
+        title: "Invalid File Type",
+        description: "Please select an image file (JPG, PNG, etc.)",
         variant: "destructive"
       });
+      return;
     }
-  }, []);
 
-  const stopCamera = useCallback(() => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => {
-        console.log("Stopping camera track:", track.kind);
-        track.stop();
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image smaller than 5MB",
+        variant: "destructive"
       });
-      videoRef.current.srcObject = null;
-      setIsStreaming(false);
+      return;
     }
+
+    // Convert to data URL for preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setUploadedImage(e.target?.result as string);
+      setEvaluation(null);
+    };
+    reader.readAsDataURL(file);
   }, []);
 
-  const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) {
-      console.error("Video or canvas element not available");
-      return;
-    }
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    
-    if (!context) {
-      console.error("Could not get canvas context");
-      return;
-    }
-
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    
-    console.log("Capturing photo with dimensions:", canvas.width, "x", canvas.height);
-    
-    // Draw the video frame to canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Convert to data URL
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-    console.log("Photo captured successfully");
-    
-    setCapturedImage(imageDataUrl);
-    stopCamera();
-  }, [stopCamera]);
-
-  const retakePhoto = useCallback(() => {
-    setCapturedImage(null);
+  const removePhoto = useCallback(() => {
+    setUploadedImage(null);
     setEvaluation(null);
-    startCamera();
-  }, [startCamera]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
 
   const evaluateOutfit = async () => {
-    if (!capturedImage) return;
+    if (!uploadedImage) return;
 
     setIsEvaluating(true);
     try {
       // Convert data URL to blob
-      const response = await fetch(capturedImage);
+      const response = await fetch(uploadedImage);
       const blob = await response.blob();
       
       // Upload to Supabase storage
@@ -242,67 +161,53 @@ const Look = () => {
               Your Professional Look
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-400">
-              Let's check your interview attire. Take a portrait photo so we can provide feedback on your professional appearance.
+              Upload a photo of yourself in interview attire. Our AI will evaluate your professional appearance and provide feedback.
             </p>
           </div>
 
           <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-blue-100/50 dark:border-blue-900/50">
-            {!capturedImage ? (
+            {!uploadedImage ? (
               <div className="space-y-6">
-                {/* Camera View */}
-                <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-blue-100 dark:from-slate-700 dark:to-blue-900 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
-                  {isStreaming ? (
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      muted
-                      className="w-full h-full object-cover"
-                      style={{ 
-                        transform: 'scaleX(-1)',
-                        display: 'block',
-                        background: 'transparent'
-                      }}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-center">
-                        <Camera className="h-16 w-16 mx-auto mb-4 text-blue-500" />
-                        <p className="text-slate-600 dark:text-slate-400">
-                          {isCameraSupported ? "Click 'Start Camera' to begin" : "Camera not available"}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                {/* Upload Area */}
+                <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-blue-100 dark:from-slate-700 dark:to-blue-900 rounded-lg overflow-hidden border-2 border-dashed border-blue-200 dark:border-blue-800 flex items-center justify-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                     onClick={handleUploadClick}>
+                  <div className="text-center">
+                    <Image className="h-16 w-16 mx-auto mb-4 text-blue-500" />
+                    <p className="text-slate-600 dark:text-slate-400 mb-2">
+                      Click to upload your photo
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-500">
+                      JPG, PNG up to 5MB
+                    </p>
+                  </div>
                 </div>
 
-                {/* Camera Controls */}
+                {/* Upload Button */}
                 <div className="flex gap-4 justify-center">
-                  {!isStreaming ? (
-                    <Button 
-                      onClick={startCamera} 
-                      disabled={!isCameraSupported} 
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-200"
-                    >
-                      <Camera className="h-5 w-5" /> Start Camera
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={capturePhoto} 
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-200"
-                    >
-                      <Camera className="h-5 w-5" /> Capture Photo
-                    </Button>
-                  )}
+                  <Button 
+                    onClick={handleUploadClick}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-200"
+                  >
+                    <Upload className="h-5 w-5" /> Upload Photo
+                  </Button>
                 </div>
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Captured Photo */}
+                {/* Uploaded Photo */}
                 <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-blue-100 dark:from-slate-700 dark:to-blue-900 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
                   <img
-                    src={capturedImage}
-                    alt="Captured portrait"
+                    src={uploadedImage}
+                    alt="Uploaded photo"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -325,11 +230,11 @@ const Look = () => {
                 {/* Photo Controls */}
                 <div className="flex gap-4 justify-center">
                   <Button 
-                    onClick={retakePhoto} 
+                    onClick={removePhoto} 
                     variant="outline" 
                     className="flex items-center gap-2 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20"
                   >
-                    <RotateCcw className="h-5 w-5" /> Retake Photo
+                    <RotateCcw className="h-5 w-5" /> Upload Different Photo
                   </Button>
                   
                   {!evaluation ? (
@@ -362,9 +267,6 @@ const Look = () => {
               </Button>
             </div>
           </div>
-
-          {/* Hidden canvas for photo capture */}
-          <canvas ref={canvasRef} style={{ display: 'none' }} />
         </div>
       </main>
     </div>
