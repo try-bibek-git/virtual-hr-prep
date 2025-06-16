@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -21,6 +21,13 @@ const Look = () => {
   const [evaluation, setEvaluation] = useState<{score: number, feedback: string} | null>(null);
   const [isCameraSupported, setIsCameraSupported] = useState(true);
 
+  // Clean up camera stream on component unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
   const startCamera = useCallback(async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -33,6 +40,8 @@ const Look = () => {
         return;
       }
 
+      console.log("Requesting camera access...");
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           width: { ideal: 1280 },
@@ -41,9 +50,36 @@ const Look = () => {
         } 
       });
       
+      console.log("Camera stream obtained:", stream);
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setIsStreaming(true);
+        
+        // Wait for video metadata to load
+        const videoElement = videoRef.current;
+        
+        const handleLoadedMetadata = () => {
+          console.log("Video metadata loaded, starting playback");
+          videoElement.play().then(() => {
+            console.log("Video playback started successfully");
+            setIsStreaming(true);
+          }).catch((error) => {
+            console.error("Error starting video playback:", error);
+            toast({
+              title: "Video Playback Error",
+              description: "Could not start video preview. Please try again.",
+              variant: "destructive"
+            });
+          });
+        };
+
+        if (videoElement.readyState >= 1) {
+          // Metadata already loaded
+          handleLoadedMetadata();
+        } else {
+          // Wait for metadata to load
+          videoElement.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+        }
       }
     } catch (error) {
       console.error("Error accessing camera:", error);
@@ -59,26 +95,43 @@ const Look = () => {
   const stopCamera = useCallback(() => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(track => {
+        console.log("Stopping camera track:", track.kind);
+        track.stop();
+      });
       videoRef.current.srcObject = null;
       setIsStreaming(false);
     }
   }, []);
 
   const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      console.error("Video or canvas element not available");
+      return;
+    }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     
-    if (!context) return;
+    if (!context) {
+      console.error("Could not get canvas context");
+      return;
+    }
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0);
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
     
+    console.log("Capturing photo with dimensions:", canvas.width, "x", canvas.height);
+    
+    // Draw the video frame to canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert to data URL
     const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    console.log("Photo captured successfully");
+    
     setCapturedImage(imageDataUrl);
     stopCamera();
   }, [stopCamera]);
@@ -125,7 +178,7 @@ const Look = () => {
 
       if (evalError) throw evalError;
 
-      // Store evaluation in database with type assertion
+      // Store evaluation in database
       const { error: dbError } = await (supabase as any)
         .from('user_photos')
         .insert({
@@ -200,7 +253,8 @@ const Look = () => {
                       autoPlay
                       playsInline
                       muted
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover mirror"
+                      style={{ transform: 'scaleX(-1)' }}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
