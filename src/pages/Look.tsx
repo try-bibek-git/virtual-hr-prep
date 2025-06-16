@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -53,32 +52,35 @@ const Look = () => {
       console.log("Camera stream obtained:", stream);
       
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        
-        // Wait for video metadata to load
         const videoElement = videoRef.current;
+        videoElement.srcObject = stream;
         
-        const handleLoadedMetadata = () => {
-          console.log("Video metadata loaded, starting playback");
-          videoElement.play().then(() => {
-            console.log("Video playback started successfully");
-            setIsStreaming(true);
-          }).catch((error) => {
-            console.error("Error starting video playback:", error);
-            toast({
-              title: "Video Playback Error",
-              description: "Could not start video preview. Please try again.",
-              variant: "destructive"
+        // Force video to load and play
+        videoElement.onloadedmetadata = () => {
+          console.log("Video metadata loaded, dimensions:", videoElement.videoWidth, "x", videoElement.videoHeight);
+          videoElement.play()
+            .then(() => {
+              console.log("Video playback started successfully");
+              setIsStreaming(true);
+            })
+            .catch((error) => {
+              console.error("Error starting video playback:", error);
+              toast({
+                title: "Video Playback Error",
+                description: "Could not start video preview. Please try again.",
+                variant: "destructive"
+              });
             });
-          });
         };
 
-        if (videoElement.readyState >= 1) {
-          // Metadata already loaded
-          handleLoadedMetadata();
-        } else {
-          // Wait for metadata to load
-          videoElement.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+        // Fallback - try to play immediately if metadata is already loaded
+        if (videoElement.readyState >= 2) {
+          videoElement.play()
+            .then(() => {
+              console.log("Video playback started immediately");
+              setIsStreaming(true);
+            })
+            .catch(console.error);
         }
       }
     } catch (error) {
@@ -232,35 +234,41 @@ const Look = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-blue dark:bg-gradient-blue-dark">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-blue-950 dark:to-indigo-950">
       <main className="flex-1 container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-primary">Your Professional Look</h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Your Professional Look
+            </h1>
+            <p className="text-xl text-slate-600 dark:text-slate-400">
               Let's check your interview attire. Take a portrait photo so we can provide feedback on your professional appearance.
             </p>
           </div>
 
-          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100/50 dark:border-gray-700/50">
+          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-blue-100/50 dark:border-blue-900/50">
             {!capturedImage ? (
               <div className="space-y-6">
                 {/* Camera View */}
-                <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
+                <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-blue-100 dark:from-slate-700 dark:to-blue-900 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
                   {isStreaming ? (
                     <video
                       ref={videoRef}
                       autoPlay
                       playsInline
                       muted
-                      className="w-full h-full object-cover mirror"
-                      style={{ transform: 'scaleX(-1)' }}
+                      className="w-full h-full object-cover"
+                      style={{ 
+                        transform: 'scaleX(-1)',
+                        display: 'block',
+                        background: 'transparent'
+                      }}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
-                        <Camera className="h-16 w-16 mx-auto mb-4 text-blue-400" />
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <Camera className="h-16 w-16 mx-auto mb-4 text-blue-500" />
+                        <p className="text-slate-600 dark:text-slate-400">
                           {isCameraSupported ? "Click 'Start Camera' to begin" : "Camera not available"}
                         </p>
                       </div>
@@ -271,11 +279,18 @@ const Look = () => {
                 {/* Camera Controls */}
                 <div className="flex gap-4 justify-center">
                   {!isStreaming ? (
-                    <Button onClick={startCamera} disabled={!isCameraSupported} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
+                    <Button 
+                      onClick={startCamera} 
+                      disabled={!isCameraSupported} 
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-200"
+                    >
                       <Camera className="h-5 w-5" /> Start Camera
                     </Button>
                   ) : (
-                    <Button onClick={capturePhoto} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
+                    <Button 
+                      onClick={capturePhoto} 
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-200"
+                    >
                       <Camera className="h-5 w-5" /> Capture Photo
                     </Button>
                   )}
@@ -284,7 +299,7 @@ const Look = () => {
             ) : (
               <div className="space-y-6">
                 {/* Captured Photo */}
-                <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
+                <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-blue-100 dark:from-slate-700 dark:to-blue-900 rounded-lg overflow-hidden border-2 border-blue-200 dark:border-blue-800">
                   <img
                     src={capturedImage}
                     alt="Captured portrait"
@@ -296,12 +311,12 @@ const Look = () => {
                 {evaluation && (
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="text-center mb-4">
-                      <div className="text-4xl font-bold text-primary mb-2">
+                      <div className="text-4xl font-bold text-blue-600 mb-2">
                         {evaluation.score}/10
                       </div>
-                      <h3 className="text-lg font-semibold mb-2 text-primary">Outfit Evaluation</h3>
+                      <h3 className="text-lg font-semibold mb-2 text-blue-600">Outfit Evaluation</h3>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-center">
+                    <p className="text-slate-700 dark:text-slate-300 text-center">
                       {evaluation.feedback}
                     </p>
                   </div>
@@ -309,16 +324,26 @@ const Look = () => {
 
                 {/* Photo Controls */}
                 <div className="flex gap-4 justify-center">
-                  <Button onClick={retakePhoto} variant="outline" className="flex items-center gap-2 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20">
+                  <Button 
+                    onClick={retakePhoto} 
+                    variant="outline" 
+                    className="flex items-center gap-2 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20"
+                  >
                     <RotateCcw className="h-5 w-5" /> Retake Photo
                   </Button>
                   
                   {!evaluation ? (
-                    <Button onClick={evaluateOutfit} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
+                    <Button 
+                      onClick={evaluateOutfit} 
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
                       <Check className="h-5 w-5" /> Evaluate Outfit
                     </Button>
                   ) : (
-                    <Button onClick={proceedToInterview} className="flex items-center gap-2 bg-primary hover:bg-primary/90">
+                    <Button 
+                      onClick={proceedToInterview} 
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    >
                       Start Interview <ArrowRight className="h-5 w-5" />
                     </Button>
                   )}
@@ -331,7 +356,7 @@ const Look = () => {
               <Button 
                 onClick={skipOutfitCheck} 
                 variant="ghost"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
               >
                 Skip outfit check and proceed to interview
               </Button>
