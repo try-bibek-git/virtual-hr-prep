@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 // Form schema
 const formSchema = z.object({
@@ -41,12 +41,7 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Use the Supabase client to invoke our edge function
-      const supabase = createClient(
-        import.meta.env.VITE_SUPABASE_URL || "",
-        import.meta.env.VITE_SUPABASE_ANON_KEY || ""
-      );
-      
+      // Use the existing Supabase client to invoke our edge function
       const { error } = await supabase.functions.invoke("send-contact-email", {
         body: JSON.stringify(data),
       });
