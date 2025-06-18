@@ -9,6 +9,7 @@ import Setup from "./pages/Setup";
 import Look from "./pages/Look";
 import Interview from "./pages/Interview";
 import Results from "./pages/Results";
+import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
@@ -58,6 +59,11 @@ const App = () => (
               <Route path="/results" element={
                 <ProtectedRoute>
                   <Results />
+                </ProtectedRoute>
+              } />
+              <Route path="/history" element={
+                <ProtectedRoute>
+                  <History />
                 </ProtectedRoute>
               } />
               <Route path="/faq" element={<FAQ />} />

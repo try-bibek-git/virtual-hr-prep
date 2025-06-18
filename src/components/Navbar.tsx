@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User, History } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -108,6 +108,15 @@ const Navbar = () => {
               </Link>
             )
           ))}
+          {isAuthenticated && (
+            <Link
+              to="/history"
+              className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1"
+            >
+              <History className="h-4 w-4" />
+              History
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-4">
@@ -123,6 +132,10 @@ const Navbar = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem disabled className="font-medium">
                   {userDisplayName}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/history")}>
+                  <History className="mr-2 h-4 w-4" />
+                  Interview History
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -180,6 +193,16 @@ const Navbar = () => {
                         </Link>
                       )
                     ))}
+                    {isAuthenticated && (
+                      <Link
+                        to="/history"
+                        className="text-lg font-medium transition-colors hover:text-primary flex items-center gap-2"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <History className="h-4 w-4" />
+                        Interview History
+                      </Link>
+                    )}
                   </nav>
                   
                   {isAuthenticated ? (

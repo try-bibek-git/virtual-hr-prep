@@ -1,10 +1,10 @@
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Import components
 import ScoreCard from "@/components/results/ScoreCard";
@@ -27,6 +27,7 @@ interface EvaluationResults {
 const Results = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { profile, questions, answers } = location.state || {
     profile: { name: "User", jobRole: "software_engineer", experienceLevel: "mid_level" },
     questions: [],
@@ -37,6 +38,34 @@ const Results = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [apiSource, setApiSource] = useState<string | null>(null);
+  const [hasInterviewSaved, setHasInterviewSaved] = useState(false);
+
+  // Save interview to history
+  const saveInterviewToHistory = async (evaluationResults: EvaluationResults) => {
+    if (!user || hasInterviewSaved) return;
+
+    try {
+      const { error } = await supabase
+        .from('interview_history')
+        .insert({
+          user_id: user.id,
+          profile,
+          questions,
+          answers,
+          evaluation_results: evaluationResults
+        });
+
+      if (error) {
+        console.error('Error saving interview to history:', error);
+        // Don't show error to user as this is a background operation
+      } else {
+        setHasInterviewSaved(true);
+        console.log('Interview saved to history successfully');
+      }
+    } catch (err) {
+      console.error('Error saving interview to history:', err);
+    }
+  };
 
   // Get evaluation from AI API
   useEffect(() => {
@@ -71,8 +100,13 @@ const Results = () => {
           throw new Error("Invalid evaluation results");
         }
 
-        setEvaluation(data as EvaluationResults);
+        const evaluationData = data as EvaluationResults;
+        setEvaluation(evaluationData);
         setApiSource(data.source || null);
+        
+        // Save to history after successful evaluation
+        await saveInterviewToHistory(evaluationData);
+        
         toast({
           title: "Evaluation Complete",
           description: `Your interview has been evaluated using ${data.source || "AI"}!`,
@@ -97,8 +131,13 @@ const Results = () => {
             throw new Error("Both AI providers failed");
           }
           
-          setEvaluation(data as EvaluationResults);
+          const evaluationData = data as EvaluationResults;
+          setEvaluation(evaluationData);
           setApiSource(data.source || "OpenAI (fallback)");
+          
+          // Save to history after successful fallback evaluation
+          await saveInterviewToHistory(evaluationData);
+          
           toast({
             title: "Evaluation Complete",
             description: `Your interview has been evaluated using ${data.source || "OpenAI fallback"}!`,
@@ -110,6 +149,9 @@ const Results = () => {
           const fallbackEval = generateFallbackEvaluation();
           setEvaluation(fallbackEval);
           setApiSource("Backup System");
+          
+          // Save fallback evaluation to history
+          await saveInterviewToHistory(fallbackEval);
           
           toast({
             title: "Using Backup Evaluation",
@@ -123,7 +165,7 @@ const Results = () => {
     };
 
     getEvaluation();
-  }, [profile, questions, answers]);
+  }, [profile, questions, answers, user, hasInterviewSaved]);
 
   // Generate a fallback evaluation if the API fails
   const generateFallbackEvaluation = (): EvaluationResults => {
