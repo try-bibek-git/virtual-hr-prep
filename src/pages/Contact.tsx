@@ -214,8 +214,17 @@ const Contact = () => {
       {/* Map Section */}
       <div className="mt-16">
         <h2 className="text-2xl font-bold mb-6 text-center">Find Us</h2>
-        <div className="bg-gray-200 dark:bg-gray-700 h-[400px] rounded-lg flex items-center justify-center">
-          <p className="text-gray-500 dark:text-gray-400">Map Placeholder</p>
+        <div className="flex justify-center">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d788.3960076667778!2d94.91168823961142!3d27.476156268842807!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1750255025514!5m2!1sen!2sin" 
+            width="600" 
+            height="450" 
+            style={{border: 0}} 
+            allowFullScreen={true} 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            className="rounded-lg w-full max-w-4xl"
+          />
         </div>
       </div>
     </div>
