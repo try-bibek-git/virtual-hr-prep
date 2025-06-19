@@ -45,14 +45,24 @@ const Results = () => {
     if (!user || hasInterviewSaved) return;
 
     try {
+      // Convert EvaluationResults to a JSON-compatible format
+      const evaluationData = {
+        score: evaluationResults.score,
+        strengths: evaluationResults.strengths,
+        weaknesses: evaluationResults.weaknesses,
+        suggestions: evaluationResults.suggestions,
+        feedback: evaluationResults.feedback,
+        source: evaluationResults.source || null
+      };
+
       const { error } = await supabase
         .from('interview_history')
         .insert({
           user_id: user.id,
-          profile,
-          questions,
-          answers,
-          evaluation_results: evaluationResults
+          profile: profile,
+          questions: questions,
+          answers: answers,
+          evaluation_results: evaluationData
         });
 
       if (error) {

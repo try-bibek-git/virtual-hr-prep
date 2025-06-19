@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +8,9 @@ import { Calendar, User, Briefcase, Star, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import InterviewDetailsModal from "@/components/history/InterviewDetailsModal";
+import { Database } from "@/integrations/supabase/types";
+
+type InterviewHistoryRecord = Database['public']['Tables']['interview_history']['Row'];
 
 interface InterviewHistory {
   id: string;
@@ -54,7 +56,17 @@ const History = () => {
         throw error;
       }
 
-      setInterviews(data || []);
+      // Transform the database records to match our interface
+      const transformedData: InterviewHistory[] = (data || []).map((record: InterviewHistoryRecord) => ({
+        id: record.id,
+        profile: record.profile as InterviewHistory['profile'],
+        questions: record.questions,
+        answers: record.answers,
+        evaluation_results: record.evaluation_results as InterviewHistory['evaluation_results'],
+        created_at: record.created_at
+      }));
+
+      setInterviews(transformedData);
     } catch (error: any) {
       console.error('Error fetching interview history:', error);
       toast({
