@@ -255,15 +255,18 @@ const Index: React.FC = () => {
           <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {workflowSteps.map((step, index) => (
-              <Card key={index} className="transition-all duration-300 hover:shadow-lg">
+              <Card 
+                key={index} 
+                className="transition-all duration-300 hover:shadow-2xl hover:scale-105 bg-gradient-to-br from-white via-blue-50/30 to-green-50/20 dark:from-gray-900 dark:via-blue-900/20 dark:to-green-900/10 border border-gray-200/50 dark:border-gray-700/50 hover:border-blue-300/50 dark:hover:border-blue-600/50 backdrop-blur-sm"
+              >
                 <CardHeader className="items-center text-center pb-2">
-                  <div className="mb-4 p-3 bg-blue-50 dark:bg-gray-800 rounded-full">
+                  <div className="mb-4 p-3 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900/30 dark:to-green-900/30 rounded-full shadow-md hover:shadow-lg transition-shadow duration-300">
                     {step.icon}
                   </div>
-                  <CardTitle>{step.title}</CardTitle>
+                  <CardTitle className="text-gray-900 dark:text-white">{step.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <CardDescription className="text-base">{step.description}</CardDescription>
+                  <CardDescription className="text-base text-gray-600 dark:text-gray-300">{step.description}</CardDescription>
                 </CardContent>
               </Card>
             ))}
