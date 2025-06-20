@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { MessageSquare, FileText, BarChart3, Award, ArrowRight, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
+import TypingAnimation from "@/components/TypingAnimation";
 
 const testimonials = [
   {
@@ -148,17 +148,25 @@ const Index: React.FC = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex-1 space-y-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-                Ace Your Next Interview with AI!
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight min-h-[4rem] md:min-h-[5rem] lg:min-h-[6rem]">
+                <TypingAnimation 
+                  text="Ace Your Next Interview with AI!" 
+                  speed={80}
+                />
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg">
-                Practice with our AI-powered interview simulator and get personalized feedback to improve your interview skills.
-              </p>
-              <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link to="/setup">
-                  Start Practice <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+              <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg min-h-[3rem]">
+                <TypingAnimation 
+                  text="Practice with our AI-powered interview simulator and get personalized feedback to improve your interview skills." 
+                  speed={30}
+                />
+              </div>
+              <div className="pt-4">
+                <Button size="lg" className="text-lg px-8 py-6" asChild>
+                  <Link to="/setup">
+                    Start Practice <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
             <div className="flex-1">
               <img 
