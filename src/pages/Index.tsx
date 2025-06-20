@@ -151,13 +151,13 @@ const Index: React.FC = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight min-h-[4rem] md:min-h-[5rem] lg:min-h-[6rem]">
                 <TypingAnimation 
                   text="Ace Your Next Interview with AI!" 
-                  speed={80}
+                  speed={40}
                 />
               </h1>
               <div className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg min-h-[3rem]">
                 <TypingAnimation 
                   text="Practice with our AI-powered interview simulator and get personalized feedback to improve your interview skills." 
-                  speed={30}
+                  speed={15}
                 />
               </div>
               <div className="pt-4">

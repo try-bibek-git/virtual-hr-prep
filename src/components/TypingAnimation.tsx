@@ -9,7 +9,7 @@ interface TypingAnimationProps {
 
 const TypingAnimation: React.FC<TypingAnimationProps> = ({ 
   text, 
-  speed = 50, 
+  speed = 20, 
   className = "" 
 }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -27,11 +27,8 @@ const TypingAnimation: React.FC<TypingAnimationProps> = ({
   }, [currentIndex, text, speed]);
 
   return (
-    <span className={className}>
+    <span className={`${className} transition-opacity duration-300`}>
       {displayedText}
-      {currentIndex < text.length && (
-        <span className="animate-pulse">|</span>
-      )}
     </span>
   );
 };
