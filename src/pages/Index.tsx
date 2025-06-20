@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { MessageSquare, FileText, BarChart3, Award, ArrowRight } from "lucide-react";
+import { MessageSquare, FileText, BarChart3, Award, ArrowRight, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 
@@ -153,11 +153,37 @@ const Index: React.FC = () => {
               <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-lg">
                 Practice with our AI-powered interview simulator and get personalized feedback to improve your interview skills.
               </p>
-              <Button size="lg" className="text-lg px-8 py-6" asChild>
-                <Link to="/setup">
-                  Start Practice <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" className="text-lg px-8 py-6" asChild>
+                  <Link to="/setup">
+                    Start Practice <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="text-lg px-8 py-6 border-2 hover:bg-primary hover:text-primary-foreground transition-colors" 
+                  asChild
+                >
+                  <a 
+                    href="https://mock-mcq-sepia.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center"
+                  >
+                    <BookOpen className="mr-2 h-5 w-5" />
+                    Try MCQ Generator
+                  </a>
+                </Button>
+              </div>
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 max-w-md">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  📄 Convert your PDFs into MCQs for self-assessment
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  Upload any PDF and get instant multiple choice questions to test your knowledge
+                </p>
+              </div>
             </div>
             <div className="flex-1">
               <img 
@@ -247,11 +273,27 @@ const Index: React.FC = () => {
           <p className="max-w-2xl mx-auto text-lg">
             Join thousands of job seekers who have improved their interview skills with our AI-powered platform.
           </p>
-          <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
-            <Link to="/setup">
-              Start Practicing Now
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
+              <Link to="/setup">
+                Start Practicing Now
+              </Link>
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-lg px-8 bg-transparent border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary transition-colors" 
+              asChild
+            >
+              <a 
+                href="https://mock-mcq-sepia.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Try MCQ Generator
+              </a>
+            </Button>
+          </div>
         </div>
       </section>
     </div>
