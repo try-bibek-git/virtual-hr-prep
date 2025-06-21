@@ -56,16 +56,14 @@ const AdminPanel = () => {
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          {isAuthenticated && (
-            <Button
-              onClick={() => navigate("/")}
-              variant="ghost"
-              className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Exit Admin Panel
-            </Button>
-          )}
+          <Button
+            onClick={() => navigate("/")}
+            variant="ghost"
+            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Exit Admin Panel
+          </Button>
         </div>
       </div>
     </header>
