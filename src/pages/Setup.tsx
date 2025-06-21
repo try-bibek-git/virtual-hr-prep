@@ -115,12 +115,23 @@ const Setup = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="software_engineer">Software Engineer</SelectItem>
+                          <SelectItem value="blockchain_developer">Blockchain Developer</SelectItem>
+                          <SelectItem value="frontend_developer">Frontend Developer</SelectItem>
+                          <SelectItem value="backend_developer">Backend Developer</SelectItem>
+                          <SelectItem value="fullstack_developer">Full Stack Developer</SelectItem>
                           <SelectItem value="product_manager">Product Manager</SelectItem>
                           <SelectItem value="data_scientist">Data Scientist</SelectItem>
+                          <SelectItem value="data_analyst">Data Analyst</SelectItem>
+                          <SelectItem value="ai_ml_engineer">AI/ML Engineer</SelectItem>
                           <SelectItem value="ux_designer">UX Designer</SelectItem>
                           <SelectItem value="marketing_specialist">Marketing Specialist</SelectItem>
+                          <SelectItem value="teaching_assistant">Teaching Assistant</SelectItem>
+                          <SelectItem value="business_analyst">Business Analyst</SelectItem>
+                          <SelectItem value="graphic_designer">Graphic Designer</SelectItem>
+                          <SelectItem value="motion_designer">Motion Designer</SelectItem>
+                          <SelectItem value="cybersecurity_analyst">Cybersecurity Analyst</SelectItem>
                           <SelectItem value="sales_representative">Sales Representative</SelectItem>
-                          <SelectItem value="customer_success">Customer Success Manager</SelectItem>
+                          
                         </SelectContent>
                       </Select>
                       <FormMessage />
