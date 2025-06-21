@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -24,6 +23,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
 import { ArrowRight } from "lucide-react";
+import { useJobRoles } from "@/hooks/useJobRoles";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -43,6 +43,7 @@ const formSchema = z.object({
 const Setup = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: jobRoles, isLoading: jobRolesLoading } = useJobRoles();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -110,28 +111,19 @@ const Setup = () => {
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a job role" />
+                            <SelectValue placeholder={jobRolesLoading ? "Loading job roles..." : "Select a job role"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="software_engineer">Software Engineer</SelectItem>
-                          <SelectItem value="blockchain_developer">Blockchain Developer</SelectItem>
-                          <SelectItem value="frontend_developer">Frontend Developer</SelectItem>
-                          <SelectItem value="backend_developer">Backend Developer</SelectItem>
-                          <SelectItem value="fullstack_developer">Full Stack Developer</SelectItem>
-                          <SelectItem value="product_manager">Product Manager</SelectItem>
-                          <SelectItem value="data_scientist">Data Scientist</SelectItem>
-                          <SelectItem value="data_analyst">Data Analyst</SelectItem>
-                          <SelectItem value="ai_ml_engineer">AI/ML Engineer</SelectItem>
-                          <SelectItem value="ux_designer">UX Designer</SelectItem>
-                          <SelectItem value="marketing_specialist">Marketing Specialist</SelectItem>
-                          <SelectItem value="teaching_assistant">Teaching Assistant</SelectItem>
-                          <SelectItem value="business_analyst">Business Analyst</SelectItem>
-                          <SelectItem value="graphic_designer">Graphic Designer</SelectItem>
-                          <SelectItem value="motion_designer">Motion Designer</SelectItem>
-                          <SelectItem value="cybersecurity_analyst">Cybersecurity Analyst</SelectItem>
-                          <SelectItem value="sales_representative">Sales Representative</SelectItem>
-                          
+                          {jobRolesLoading ? (
+                            <SelectItem value="loading" disabled>Loading...</SelectItem>
+                          ) : (
+                            jobRoles?.map((role) => (
+                              <SelectItem key={role.id} value={role.value}>
+                                {role.label}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -208,7 +200,7 @@ const Setup = () => {
                 <Button 
                   type="submit" 
                   className="w-full py-6 text-lg bg-primary hover:bg-primary/90" 
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || jobRolesLoading}
                 >
                   {isSubmitting ? "Setting Up..." : (
                     <>
