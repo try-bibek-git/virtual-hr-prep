@@ -33,20 +33,25 @@ serve(async (req) => {
               contents: [{
                 parts: [
                   {
-                    text: `Analyze this interview outfit photo and provide feedback. Rate the professional appearance on a scale of 1-10 considering:
-                    - Formal attire appropriateness
-                    - Color coordination
-                    - Overall professional presentation
-                    - Interview readiness
+                    text: `Strictly analyze the uploaded interview outfit photo and evaluate the professional appearance on a scale of 1–10 based on the following strict criteria:
+                        - Formal attire appropriateness (business or business casual expected)
+                        - Color coordination and neatness
+                        - Overall professional presentation (well-groomed, tidy, interview-suitable)
+                        - Interview readiness based on industry standards
                     
                     Job Role: ${profile?.jobRole || 'Professional'}
                     Experience Level: ${profile?.experienceLevel || 'Mid-level'}
+
+                    Scoring Rules:
+                    - Give 8–10 only if the outfit is fully appropriate and ideal for an interview.
+                    - Give 4–7 for minor but noticeable issues (e.g. casual elements, slightly mismatched clothing).
+                    - Give 1–3 if the outfit is clearly inappropriate for an interview (e.g. too casual, unkempt, informal styles).
                     
                     Respond with a JSON object containing:
                     - score: number (1-10)
-                    - feedback: string (brief, encouraging feedback about their appearance, be strict with the outfits)
+                    - feedback: string (constructive, objective feedback on what is appropriate or inappropriate  )
                     
-                    Keep feedback positive and constructive, focusing on what looks ideal for an interview and any minor improvements.`
+                    Do not be overly encouraging. Be objective and clear. Focus more on identifying issues than praising good parts.`
                   },
                   {
                     inline_data: {
