@@ -38,6 +38,7 @@ serve(async (req) => {
                     - Color coordination
                     - Overall professional presentation
                     - Interview readiness
+                    - Be strict (warn if user wear outfit that is not ideal for an interview)
                     
                     Job Role: ${profile?.jobRole || 'Professional'}
                     Experience Level: ${profile?.experienceLevel || 'Mid-level'}
@@ -46,7 +47,7 @@ serve(async (req) => {
                     - score: number (1-10)
                     - feedback: string (brief, encouraging feedback about their appearance)
                     
-                    Keep feedback positive and constructive, focusing on what looks good and any minor improvements.`
+                    Keep feedback positive and constructive, focusing on what looks ideal for an interview and any minor improvements.`
                   },
                   {
                     inline_data: {
