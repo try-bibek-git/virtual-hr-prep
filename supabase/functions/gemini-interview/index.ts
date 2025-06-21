@@ -38,14 +38,13 @@ serve(async (req) => {
                     - Color coordination
                     - Overall professional presentation
                     - Interview readiness
-                    - Be strict (warn if user wear outfit that is not ideal for an interview)
                     
                     Job Role: ${profile?.jobRole || 'Professional'}
                     Experience Level: ${profile?.experienceLevel || 'Mid-level'}
                     
                     Respond with a JSON object containing:
                     - score: number (1-10)
-                    - feedback: string (brief, encouraging feedback about their appearance)
+                    - feedback: string (brief, encouraging feedback about their appearance, be strict with the outfits)
                     
                     Keep feedback positive and constructive, focusing on what looks ideal for an interview and any minor improvements.`
                   },
