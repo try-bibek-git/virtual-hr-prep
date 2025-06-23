@@ -165,7 +165,7 @@ const Look = () => {
             </p>
           </div>
 
-          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-blue-100/50 dark:border-blue-900/50">
+          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-xl border border-blue-100/50 dark:border-blue-900/50">
             {!uploadedImage ? (
               <div className="space-y-6">
                 {/* Upload Area */}
@@ -227,29 +227,29 @@ const Look = () => {
                   </div>
                 )}
 
-                {/* Photo Controls */}
-                <div className="flex gap-4 justify-center">
+                {/* Photo Controls - Updated for mobile responsiveness */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                   <Button 
                     onClick={removePhoto} 
                     variant="outline" 
-                    className="flex items-center gap-2 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20"
+                    className="flex items-center justify-center gap-2 border-blue-200 hover:bg-blue-50 dark:border-blue-800 dark:hover:bg-blue-900/20 w-full sm:w-auto text-sm sm:text-base px-4 py-2"
                   >
-                    <RotateCcw className="h-5 w-5" /> Upload Different Photo
+                    <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5" /> Upload Different Photo
                   </Button>
                   
                   {!evaluation ? (
                     <Button 
                       onClick={evaluateOutfit} 
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                      className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto text-sm sm:text-base px-4 py-2"
                     >
-                      <Check className="h-5 w-5" /> Evaluate Outfit
+                      <Check className="h-4 w-4 sm:h-5 sm:w-5" /> Evaluate Outfit
                     </Button>
                   ) : (
                     <Button 
                       onClick={proceedToInterview} 
-                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                      className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto text-sm sm:text-base px-4 py-2"
                     >
-                      Start Interview <ArrowRight className="h-5 w-5" />
+                      Start Interview <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   )}
                 </div>
@@ -261,7 +261,7 @@ const Look = () => {
               <Button 
                 onClick={skipOutfitCheck} 
                 variant="ghost"
-                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm sm:text-base"
               >
                 Skip outfit check and proceed to interview
               </Button>
