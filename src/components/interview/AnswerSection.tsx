@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,11 +136,12 @@ const AnswerSection = ({
         className="min-h-[200px] p-4 text-base resize-y"
       />
 
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
           <Button 
             variant="outline" 
             onClick={onToggleTimer}
+            className="w-full sm:w-auto text-sm sm:text-base px-3 py-2"
           >
             {isTimerActive ? "Pause Timer" : "Resume Timer"}
           </Button>
@@ -149,16 +149,16 @@ const AnswerSection = ({
           <Button
             variant="outline"
             onClick={toggleRecording}
-            className={isRecording ? "bg-red-50 text-red-600 hover:bg-red-100 border-red-200" : ""}
+            className={`${isRecording ? "bg-red-50 text-red-600 hover:bg-red-100 border-red-200" : ""} w-full sm:w-auto text-sm sm:text-base px-3 py-2`}
             title={isRecording ? "Stop dictation" : "Start dictation"}
           >
             {isRecording ? (
               <>
-                <MicOff className="h-5 w-5 mr-2" /> Stop Dictating
+                <MicOff className="h-4 w-4 sm:h-5 sm:w-5 mr-2" /> Stop Dictating
               </>
             ) : (
               <>
-                <Mic className="h-5 w-5 mr-2" /> Dictate Answer
+                <Mic className="h-4 w-4 sm:h-5 sm:w-5 mr-2" /> Dictate Answer
               </>
             )}
           </Button>
@@ -166,10 +166,10 @@ const AnswerSection = ({
 
         <Button 
           onClick={onNextQuestion} 
-          className="px-8"
+          className="w-full sm:w-auto sm:px-8 text-sm sm:text-base px-4 py-2 justify-center"
         >
           {!isLastQuestion ? (
-            <>Next Question <ArrowRight className="ml-2 h-5 w-5" /></>
+            <>Next Question <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" /></>
           ) : (
             "Finish Interview"
           )}
