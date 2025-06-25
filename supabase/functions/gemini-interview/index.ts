@@ -60,7 +60,6 @@ serve(async (req) => {
   {
     "score": number (1-10),
     "feedback": string (list EXACT violations with fixes),
-    "passed": boolean (true only if score ≥7)
   }`
 },
                   {
