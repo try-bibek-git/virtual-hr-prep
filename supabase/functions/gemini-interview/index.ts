@@ -33,26 +33,36 @@ serve(async (req) => {
               contents: [{
                 parts: [
                   {
-                    text: `Strictly analyze the uploaded interview outfit photo and evaluate the professional appearance on a scale of 1–10 based on the following strict criteria:
-                        - Formal attire appropriateness (business or business casual expected)
-                        - Color coordination and neatness
-                        - Overall professional presentation (well-groomed, tidy, interview-suitable)
-                        - Interview readiness based on industry standards
-                    
-                    Job Role: ${profile?.jobRole || 'Professional'}
-                    Experience Level: ${profile?.experienceLevel || 'Mid-level'}
+  text: `Analyze this interview outfit photo with maximum strictness. Evaluate professionalism HARDCODED to these rules:
+  
+   MANDATORY FORMAL ELEMENTS (ALL must be present for score ≥7):
+  - Formal shirt/blazer/coat (no T-shirts/polos/denim)
+  - Formal trousers (no jeans/joggers/shorts)
+  - Closed-toe formal shoes (no sneakers/sandals)
+  - Neat grooming (well-combed hair, no wrinkles/stains)
 
-                    Scoring Rules:
-                    - Give 8–10 only if the outfit is fully appropriate and ideal for an interview.
-                    - Give 4–7 for minor but noticeable issues (e.g. casual elements, slightly mismatched clothing).
-                    - Give 1–3 if the outfit is clearly inappropriate for an interview (e.g. too casual, unkempt, informal styles).
-                    
-                    Respond with a JSON object containing:
-                    - score: number (1-10)
-                    - feedback: string (constructive, objective feedback on what is appropriate or inappropriate  )
-                    
-                    Do not be overly encouraging. Be objective and clear. Focus more on identifying issues than praising good parts.`
-                  },
+   AUTOMATIC FAILURES (Score ≤4 if ANY are detected):
+  - Casual T-shirts/hoodies
+  - Denim/athletic wear
+  - Open footwear
+  - Visible logos/graphics
+
+  Scoring Matrix:
+   9-10: Impeccable formalwear (e.g., full suit + tie)
+   7-8: Minor deviations (e.g., no tie but formal shirt+trousers)
+   5-6: Business casual (e.g., formal shirt with chinos)
+   1-4: Casual/informal (ANY T-shirt/jeans/joggers/sneakers)
+
+  Job Role: ${profile?.jobRole || 'Corporate'}
+  Experience Level: ${profile?.experienceLevel || 'Mid-level'}
+
+  Respond ONLY in this JSON format:
+  {
+    "score": number (1-10),
+    "feedback": string (list EXACT violations with fixes),
+    "passed": boolean (true only if score ≥7)
+  }`
+},
                   {
                     inline_data: {
                       mime_type: "image/jpeg",
