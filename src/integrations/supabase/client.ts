@@ -2,8 +2,12 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://puunmvbkvssxuzbvkthm.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dW5tdmJrdnNzeHV6YnZrdGhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NTYwMDAsImV4cCI6MjA2MjQzMjAwMH0.ICpWUKL0uSmETrRlW4WR7wHK_5pHCDxXDbWig4t7WJM";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://puunmvbkvssxuzbvkthm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dW5tdmJrdnNzeHV6YnZrdGhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NTYwMDAsImV4cCI6MjA2MjQzMjAwMH0.ICpWUKL0uSmETrRlW4WR7wHK_5pHCDxXDbWig4t7WJM";
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('Missing Supabase environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

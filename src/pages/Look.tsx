@@ -97,7 +97,13 @@ const Look = () => {
         }
       });
 
-      if (evalError) throw evalError;
+      if (evalError) {
+        throw new Error(evalError.message || "Outfit evaluation request failed");
+      }
+
+      if (!evalData || evalData.error) {
+        throw new Error(evalData?.error || "Invalid response from outfit evaluation service");
+      }
 
       // Store evaluation in database
       const { error: dbError } = await (supabase as any)
@@ -121,7 +127,7 @@ const Look = () => {
       console.error("Error evaluating outfit:", error);
       toast({
         title: "Evaluation Failed",
-        description: "We couldn't evaluate your outfit. You can proceed to the interview.",
+        description: error?.message || "We couldn't evaluate your outfit. You can proceed to the interview.",
         variant: "destructive"
       });
       

@@ -12,7 +12,7 @@ export function useAuthForm() {
   const handleSignIn = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const success = await login(email, password);
+      const { success, error } = await login(email, password);
       if (success) {
         toast({
           title: "Login successful!",
@@ -22,14 +22,14 @@ export function useAuthForm() {
       } else {
         toast({
           title: "Login failed",
-          description: "Invalid email or password.",
+          description: error || "Invalid email or password.",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Something went wrong. Please try again.",
+        description: error?.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {

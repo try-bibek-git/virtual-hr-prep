@@ -6,7 +6,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   user: User | null;
   session: Session | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: any }>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<boolean>;
@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   user: null,
   session: null,
-  login: async () => false,
+  login: async () => ({ success: false }),
   register: async () => ({ success: false }),
   logout: async () => {},
   loginWithGoogle: async () => false,
@@ -53,17 +53,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        console.error("Login error:", error.message);
-        return false;
+        console.error("Login error:", error);
+        return { success: false, error: error.message ?? String(error) };
       }
-      return true;
-    } catch (error) {
+      return { success: true };
+    } catch (error: any) {
       console.error("Unexpected login error:", error);
-      return false;
+      return { success: false, error: error?.message ?? String(error) };
     }
   };
 

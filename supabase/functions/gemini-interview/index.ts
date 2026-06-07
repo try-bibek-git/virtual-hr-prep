@@ -7,6 +7,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const parseJsonResponse = (text: string) => {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+};
+
+const parseArrayResponse = (text: string) => {
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+};
+
+const fetchResponseText = async (response: Response) => {
+  const text = await response.text();
+  return text;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -78,19 +93,18 @@ serve(async (req) => {
           });
 
           if (response.ok) {
-            const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            
-            if (text) {
-              const jsonMatch = text.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                const result = JSON.parse(jsonMatch[0]);
-                console.log('Gemini outfit evaluation successful:', result);
-                return new Response(JSON.stringify({ ...result, source: 'Gemini AI' }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
+            const text = await fetchResponseText(response);
+            const result = parseJsonResponse(text);
+            if (result) {
+              console.log('Gemini outfit evaluation successful:', result);
+              return new Response(JSON.stringify({ ...result, source: 'Gemini AI' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
             }
+            console.error('Gemini outfit evaluation returned unparseable output:', text);
+          } else {
+            const body = await fetchResponseText(response);
+            console.error('Gemini outfit evaluation HTTP error:', response.status, body);
           }
         } catch (error) {
           console.error('Gemini outfit evaluation failed:', error);
@@ -136,19 +150,18 @@ Respond with only a JSON object containing:
           });
 
           if (response.ok) {
-            const data = await response.json();
-            const content = data.choices?.[0]?.message?.content;
-            
-            if (content) {
-              const jsonMatch = content.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                const result = JSON.parse(jsonMatch[0]);
-                console.log('OpenAI outfit evaluation successful:', result);
-                return new Response(JSON.stringify({ ...result, source: 'OpenAI' }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
+            const text = await fetchResponseText(response);
+            const result = parseJsonResponse(text);
+            if (result) {
+              console.log('OpenAI outfit evaluation successful:', result);
+              return new Response(JSON.stringify({ ...result, source: 'OpenAI' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
             }
+            console.error('OpenAI outfit evaluation returned unparseable output:', text);
+          } else {
+            const body = await fetchResponseText(response);
+            console.error('OpenAI outfit evaluation HTTP error:', response.status, body);
           }
         } catch (error) {
           console.error('OpenAI outfit evaluation failed:', error);
@@ -184,19 +197,18 @@ Respond with only a JSON object containing:
           });
 
           if (response.ok) {
-            const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            
-            if (text) {
-              const jsonMatch = text.match(/\[[\s\S]*\]/);
-              if (jsonMatch) {
-                const questions = JSON.parse(jsonMatch[0]);
-                console.log('Gemini questions generated successfully');
-                return new Response(JSON.stringify({ questions, source: 'Gemini AI' }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
+            const text = await fetchResponseText(response);
+            const questions = parseArrayResponse(text);
+            if (questions) {
+              console.log('Gemini questions generated successfully');
+              return new Response(JSON.stringify({ questions, source: 'Gemini AI' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
             }
+            console.error('Gemini questions generation returned unparseable output:', text);
+          } else {
+            const body = await fetchResponseText(response);
+            console.error('Gemini questions generation HTTP error:', response.status, body);
           }
         } catch (error) {
           console.error('Gemini question generation failed:', error);
@@ -221,19 +233,18 @@ Respond with only a JSON object containing:
           });
 
           if (response.ok) {
-            const data = await response.json();
-            const content = data.choices?.[0]?.message?.content;
-            
-            if (content) {
-              const jsonMatch = content.match(/\[[\s\S]*\]/);
-              if (jsonMatch) {
-                const questions = JSON.parse(jsonMatch[0]);
-                console.log('OpenAI questions generated successfully');
-                return new Response(JSON.stringify({ questions, source: 'OpenAI' }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
+            const text = await fetchResponseText(response);
+            const questions = parseArrayResponse(text);
+            if (questions) {
+              console.log('OpenAI questions generated successfully');
+              return new Response(JSON.stringify({ questions, source: 'OpenAI' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
             }
+            console.error('OpenAI questions generation returned unparseable output:', text);
+          } else {
+            const body = await fetchResponseText(response);
+            console.error('OpenAI questions generation HTTP error:', response.status, body);
           }
         } catch (error) {
           console.error('OpenAI question generation failed:', error);
@@ -282,19 +293,18 @@ Provide evaluation as JSON with:
           });
 
           if (response.ok) {
-            const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            
-            if (text) {
-              const jsonMatch = text.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                const evaluation = JSON.parse(jsonMatch[0]);
-                console.log('Gemini evaluation successful');
-                return new Response(JSON.stringify({ ...evaluation, source: 'Gemini AI' }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
+            const text = await fetchResponseText(response);
+            const evaluation = parseJsonResponse(text);
+            if (evaluation) {
+              console.log('Gemini evaluation successful');
+              return new Response(JSON.stringify({ ...evaluation, source: 'Gemini AI' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
             }
+            console.error('Gemini evaluation returned unparseable output:', text);
+          } else {
+            const body = await fetchResponseText(response);
+            console.error('Gemini evaluation HTTP error:', response.status, body);
           }
         } catch (error) {
           console.error('Gemini evaluation failed:', error);
@@ -319,19 +329,18 @@ Provide evaluation as JSON with:
           });
 
           if (response.ok) {
-            const data = await response.json();
-            const content = data.choices?.[0]?.message?.content;
-            
-            if (content) {
-              const jsonMatch = content.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                const evaluation = JSON.parse(jsonMatch[0]);
-                console.log('OpenAI evaluation successful');
-                return new Response(JSON.stringify({ ...evaluation, source: 'OpenAI' }), {
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-                });
-              }
+            const text = await fetchResponseText(response);
+            const evaluation = parseJsonResponse(text);
+            if (evaluation) {
+              console.log('OpenAI evaluation successful');
+              return new Response(JSON.stringify({ ...evaluation, source: 'OpenAI' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+              });
             }
+            console.error('OpenAI evaluation returned unparseable output:', text);
+          } else {
+            const body = await fetchResponseText(response);
+            console.error('OpenAI evaluation HTTP error:', response.status, body);
           }
         } catch (error) {
           console.error('OpenAI evaluation failed:', error);
